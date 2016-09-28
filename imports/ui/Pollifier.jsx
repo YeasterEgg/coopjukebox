@@ -3,22 +3,52 @@ import { createContainer } from 'meteor/react-meteor-data';
 
 import { Answers } from '../api/answers.js';
 
-
-class App extends Component {
-
+class Pollifier extends Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      loggedIn: false,
+      code: this.props.queryParams["code"],
+      sessionState: this.props.queryParams["state"]
+    }
+  }
   render() {
-    return (
-      <div className="container">
-        <header>
-          <h1 onClick={this.testServer}>Test</h1>
-        </header>
-        {this.renderAnswers()}
-      </div>
-    );
+    if(this.state.code && (this.state.sessionState == localStorage.getItem("sessionState"))){
+      console.log('wow')
+      localStorage.removeItem("sessionState")
+    }
+    if(!this.state.loggedIn){
+      return (
+        <div className="container">
+          <header>
+            <h1 onClick={this.testServer}>Test</h1>
+          </header>
+          <br />
+          <br />
+          <br />
+          <header>
+            <h1 onClick={this.testCall}>Test2</h1>
+          </header>
+        </div>
+      )
+    }else{
+      return (
+        <div className="container">
+          <header>
+            <h1 onClick={this.testServer}>Test</h1>
+          </header>
+        </div>
+      )
+    }
   }
 
   testServer(){
-    Meteor.call('getAuth')
+    state = "randomStringISwear"
+    localStorage.setItem("sessionState", state)
+    Meteor.call('getAuth', state, function(error, redirectUrl){
+      console.log(redirectUrl)
+      window.location.replace(redirectUrl)
+    })
   }
 
   renderAnswers(){
@@ -30,11 +60,20 @@ class App extends Component {
     }
   }
 
+  testCall(){
+    state = "randomStringISwear"
+    Session.set("state", state)
+    Meteor.call("ajaxCall", state, function(error, response){
+      console.log(response)
+    })
+  }
+
 }
 
 
-App.propTypes = {
+Pollifier.propTypes = {
   answers: PropTypes.array.isRequired,
+  queryParams: PropTypes.object.isRequired,
 };
 
 export default createContainer(() => {
@@ -42,4 +81,4 @@ export default createContainer(() => {
   return {
     answers: Answers.find({}).fetch(),
   };
-}, App);
+}, Pollifier);
