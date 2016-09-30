@@ -1,18 +1,9 @@
 import { Meteor } from 'meteor/meteor'
-import { Tokens } from '../imports/api/tokens.js'
 import { LoggedUsers } from '../imports/api/loggedUsers.js'
-import '../imports/api/tokens.js'
 
 apiHelper = require('../imports/lib/apiHelper.js')
 request = require('request')
 querystring = require('querystring')
-
-const clientId = "7c5e5454fa984628b185a254e6de4331"
-const clientSecret = "60931e45084d44349b6b6f63c8aa5760"
-const redirectUri = "http://localhost:3000/"
-const scope = "user-read-private user-read-email playlist-modify playlist-modify-private"
-const authUrl = "https://accounts.spotify.com/authorize"
-const tokenUrl = "https://accounts.spotify.com/api/token"
 
 // Functions
 getTokenValue = function(code, callback){
@@ -96,6 +87,11 @@ Meteor.methods({
     }else{
       console.log("User already Registered!")
     }
+  },
+
+  "refreshToken": function(url, accessToken, object){
+    // result = postValue(url, accessToken, object)
+    // console.log(result.body)
   },
 
   "createPlaylist": function(url, accessToken, object, userId){

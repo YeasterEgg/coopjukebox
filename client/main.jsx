@@ -9,8 +9,8 @@ apiHelper = require('../imports/lib/apiHelper.js')
 Meteor.startup(() => {
   queryParams = apiHelper.returnParams(window.location.href)
   if(queryParams["code"] && (queryParams["state"] == localStorage.getItem("sessionState"))){
-    localStorage.removeItem("sessionState")
     Meteor.call("getToken", queryParams["code"])
+    window.location.replace("http://localhost:3000")
   }
   render(<Pollifier playlistId={queryParams["playlistId"] || ""} />, document.getElementById('render-target'));
 });

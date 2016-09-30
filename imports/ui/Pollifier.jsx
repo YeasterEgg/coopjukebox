@@ -9,7 +9,7 @@ class Pollifier extends Component {
     super(props)
     this.state = {
       tokenValid: false,
-      currentToken: false
+      currentToken: false,
     }
   }
 
@@ -44,7 +44,6 @@ class Pollifier extends Component {
 
   componentDidMount(){
     Meteor.call("tokens.lastValid",function(error, result){
-      console.log(result)
       if(result.valid){
         this.setState({tokenValid: true, currentToken: result.token })
       }else if(result.token){
@@ -54,8 +53,6 @@ class Pollifier extends Component {
   }
 
   refreshToken(token){
-    console.log("refresh me plz!")
-    console.log(token)
   }
 
   renderWaiter(){
