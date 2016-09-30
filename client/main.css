@@ -16,6 +16,21 @@ body {
   font-size: 14px;
 }
 
+
+/* Homepage */
+
+.homepage--father_container{
+  position: relative;
+  margin: auto;
+  width: 60%;
+  height: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top:100px;
+}
+
 /* Loader */
 
 .loader--dots {

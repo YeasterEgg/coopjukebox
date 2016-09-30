@@ -5,7 +5,6 @@ const scope = "user-read-private user-read-email playlist-modify playlist-modify
 const authUrl = "https://accounts.spotify.com/authorize"
 const tokenUrl = "https://accounts.spotify.com/api/token"
 
-
 module.exports = {
   clientId: clientId,
   clientSecret: clientSecret,

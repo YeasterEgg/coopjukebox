@@ -1,17 +1,39 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
-import { Tokens } from '../api/tokens.js';
+
+import { LoggedUsers } from '../api/loggedUsers.js'
+
+const crypto = require('crypto')
 
 class Pollifier extends Component {
+
+  // State set
 
   constructor(props){
     super(props)
     this.state = {
-      tokenValid: false,
-      currentToken: false,
+      loggedUser: false,
+      playlistPresent: false,
+      currentUser: null
     }
   }
+
+  // Force the check at the DOMready, or something like that
+
+  componentDidMount(){
+    Meteor.call("loggedUsers.fromSessionId", localStorage.sessionId, function(error, result){
+      if(result.logged){
+        this.setState({loggedUser: true, currentUser: result.user})
+        console.log(this.state)
+        if(result.user.playlist.playlistSpotifyId){
+          this.setState({playlistPresent: true})
+        }
+      }
+    }.bind(this))
+  }
+
+  // Rendering Methods
 
   render(){
     if(this.props.subscription){
@@ -19,40 +41,6 @@ class Pollifier extends Component {
     }else{
       return(<div>{this.renderWaiter()}</div>)
     }
-  }
-
-  renderPage(){
-    if(this.state.tokenValid){
-      return (
-        <div className="container">
-          <div className="home--playlist_form">
-            <input name="playlist_name" id="playlist_name" type="text" size="20" maxLength="50" />
-            <button type="submit" onClick={this.createPlaylist.bind(this)}>Crea playlist</button>
-          </div>
-        </div>
-      )
-    }else{
-      return (
-        <div className="container">
-          <header>
-            <h1 onClick={this.getAuth.bind(this)}>Get token man</h1>
-          </header>
-        </div>
-      )
-    }
-  }
-
-  componentDidMount(){
-    Meteor.call("tokens.lastValid",function(error, result){
-      if(result.valid){
-        this.setState({tokenValid: true, currentToken: result.token })
-      }else if(result.token){
-        this.refreshToken(result.token)
-      }
-    }.bind(this))
-  }
-
-  refreshToken(token){
   }
 
   renderWaiter(){
@@ -65,11 +53,56 @@ class Pollifier extends Component {
     )
   }
 
+  renderPage(){
+    if(this.state.loggedUser){
+      return (
+        <div className="homepage--father_container">{this.renderSpotifyForm()}</div>
+      )
+    }else{
+      return (
+        <div className="homepage--father_container">{this.renderAuthButton()}</div>
+      )
+    }
+  }
+
+  renderAuthButton(){
+    return(
+      <button className="pure-button pure-button-primary homepage--central_button" onClick={this.getAuth.bind(this)}>Access through Spotify</button>
+    )
+  }
+
+  renderSpotifyForm(){
+    if(this.state.playlistPresent){
+      return(
+        <div>{this.renderSearchForm()}</div>
+      )
+    }else{
+      return(
+        <div className="home--playlist_form">
+          <input name="playlist_name" id="playlist_name" type="text" size="20" maxLength="50" />
+          <button type="submit" onClick={this.createPlaylist.bind(this)}>Crea playlist</button>
+        </div>
+      )
+    }
+  }
+
+  renderSearchForm(){
+    return(
+      <div className="home--search_form">CIAONE</div>
+    )
+  }
+
+  // Classic Methods
+
   getAuth(){
-    state = Math.random().toString(36).substring(7)
-    localStorage.setItem("sessionState", state)
-    Meteor.call('getAuth', state, function(error, redirectUrl){
-      window.location.replace(redirectUrl)
+    sessionId = crypto.randomBytes(64).toString('hex')
+    localStorage.setItem("sessionId", sessionId)
+    Meteor.call('getAuthUrl', sessionId, function(error, spotifyAuthUrl){
+      if(!error){
+        window.location.replace(spotifyAuthUrl)
+      }else{
+        console.log(error)
+      }
     })
   }
 
@@ -79,10 +112,12 @@ class Pollifier extends Component {
       "name": playlistName,
       "public": true
     }
-    url = "https://api.spotify.com/v1/users/" + this.state.currentToken.userId + "/playlists"
-    token = this.state.currentToken.accessToken
-    Meteor.call("createPlaylist", url, token, options, this.state.currentToken.userId, function(result){
-      console.log(result)
+    userSpotifyId = this.state.currentUser.spotifyId
+    url = "https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists"
+    token = this.state.currentUser.token.accessToken
+    userId = this.state.currentUser._id
+    Meteor.call("createPlaylist", url, token, options, userId, function(result){
+      this.setState("playlistPresent", true)
     })
   }
 
@@ -95,16 +130,15 @@ class Pollifier extends Component {
 }
 
 Pollifier.propTypes = {
-  tokens: PropTypes.array.isRequired,
   subscription: PropTypes.bool.isRequired,
-  playlistId: PropTypes.string.isRequired,
+  users: PropTypes.array.isRequired,
 };
 
 export default createContainer(() => {
-  const tokensSubscription = Meteor.subscribe('tokens')
+  const usersSubscription = Meteor.subscribe('loggedUsers')
 
   return {
-    tokens: Tokens.find().fetch(),
-    subscription: tokensSubscription.ready()
+    users: LoggedUsers.find().fetch(),
+    subscription: usersSubscription.ready()
   };
 }, Pollifier);
