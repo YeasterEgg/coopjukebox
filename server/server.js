@@ -89,6 +89,8 @@ Meteor.methods({
         email: newCall.body.email,
         uri: newCall.body.uri,
         userId: newCall.body.id,
+        playlistName: false,
+        playlistId: false,
         createdAt: new Date
       })
     }else{
@@ -96,9 +98,9 @@ Meteor.methods({
     }
   },
 
-  "postData": function(url, accessToken, object){
+  "createPlaylist": function(url, accessToken, object, userId){
     result = postValue(url, accessToken, object)
-    console.log(result.body)
+    LoggedUsers.update({userId: userId}, {$set: {playlistName: object.name, playlistId: result.body.id}})
   }
 
 })

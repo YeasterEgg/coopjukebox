@@ -5,7 +5,6 @@ import { check } from 'meteor/check';
 export const Tokens = new Mongo.Collection('tokens');
 
 if (Meteor.isServer) {
-  // This code only runs on the server
   Meteor.publish('tokens', function tokensPublication() {
     return Tokens.find();
   });

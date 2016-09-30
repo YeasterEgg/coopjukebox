@@ -44,6 +44,7 @@ class Pollifier extends Component {
 
   componentDidMount(){
     Meteor.call("tokens.lastValid",function(error, result){
+      console.log(result)
       if(result.valid){
         this.setState({tokenValid: true, currentToken: result.token })
       }else if(result.token){
@@ -53,6 +54,7 @@ class Pollifier extends Component {
   }
 
   refreshToken(token){
+    console.log("refresh me plz!")
     console.log(token)
   }
 
@@ -82,14 +84,23 @@ class Pollifier extends Component {
     }
     url = "https://api.spotify.com/v1/users/" + this.state.currentToken.userId + "/playlists"
     token = this.state.currentToken.accessToken
-    Meteor.call("postData", url, token, options)
+    Meteor.call("createPlaylist", url, token, options, this.state.currentToken.userId, function(result){
+      console.log(result)
+    })
+  }
+
+  addTrackToPlaylist(){
+    userId = this.state.currentToken.userId
+    playlistId = "ciao"
+    url = "https://api.spotify.com/v1/users/" + this.state.currentToken.userId + "/playlists/{playlist_id}/tracks"
   }
 
 }
 
 Pollifier.propTypes = {
   tokens: PropTypes.array.isRequired,
-  subscription: PropTypes.bool.isRequired
+  subscription: PropTypes.bool.isRequired,
+  playlistId: PropTypes.string.isRequired,
 };
 
 export default createContainer(() => {

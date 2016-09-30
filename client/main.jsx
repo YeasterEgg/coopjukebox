@@ -12,7 +12,7 @@ Meteor.startup(() => {
     localStorage.removeItem("sessionState")
     Meteor.call("getToken", queryParams["code"])
   }
-  render(<Pollifier />, document.getElementById('render-target'));
+  render(<Pollifier playlistId={queryParams["playlistId"] || ""} />, document.getElementById('render-target'));
 });
 
 
