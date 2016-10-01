@@ -1,14 +1,18 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
+import Track from './Track.jsx'
 
 export default class TrackList extends Component {
 
   render(){
+    console.log(this.props)
     return(
       <div className="homepage--tracklist">
         {this.props.tracks.map(function(track){
-          this.renderTrack(track)
+          return(
+            <Track track={track} key={track.id} addTrack={this.props.addTrack}/>
+          )
         }.bind(this))}
       </div>
     )

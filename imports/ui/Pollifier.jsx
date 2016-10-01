@@ -19,7 +19,8 @@ export default class Pollifier extends Component {
     this.state = {
       loggedUser: false,
       playlistPresent: false,
-      currentUser: null
+      currentUser: null,
+      trackList: []
     }
   }
 
@@ -102,14 +103,10 @@ export default class Pollifier extends Component {
     )
   }
 
-  renderTrackList(){
+  renderTrackList(trackList){
     return (
-      <TrackList tracks={[{name: 'test'}]} />
+      <TrackList tracks={this.state.trackList} addTrack={this.addTrack} />
     )
-  }
-
-  renderTracks(){
-
   }
 
   // API Methods
@@ -151,16 +148,20 @@ export default class Pollifier extends Component {
     xhr.open('GET', url, true)
     xhr.onload = function (event){
       if (xhr.readyState === 4 && xhr.status === 200) {
-        this.renderTracks(JSON.parse(xhr.responseText))
+        trackList = JSON.parse(xhr.responseText).tracks.items
+        this.setState({trackList: trackList})
       }
     }.bind(this)
     xhr.send(null)
   }
 
   addTrack(){
-    userId = this.state.currentUser.spotifyId
-    playlistId = this.state.currentUser.playlist.playlistSpotifyId
-    url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
+    console.log(this)
+    console.log(track)
+    // userId = Meteor.state.currentUser.spotifyId
+    // playlistId = Meteor.state.currentUser.playlist.playlistSpotifyId
+    // url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
+    // console.log(url)
   }
 
 }
