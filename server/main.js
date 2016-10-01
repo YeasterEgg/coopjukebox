@@ -114,6 +114,6 @@ Meteor.methods({
   "createPlaylist": function(url, accessToken, object, userId){
     result = postApiWrapper(url, accessToken, object)
     LoggedUsers.update({_id: userId}, {$set: {playlist: {playlistName: object.name, playlistSpotifyId: result.body.id}}})
-  }
+  },
 
 })

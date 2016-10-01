@@ -1,0 +1,28 @@
+import React, { Component, PropTypes } from 'react'
+import { createContainer } from 'meteor/react-meteor-data'
+import ReactDOM from 'react-dom'
+
+export default class TrackList extends Component {
+
+  render(){
+    return(
+      <div className="homepage--tracklist">
+        {this.props.tracks.map(function(track){
+          this.renderTrack(track)
+        }.bind(this))}
+      </div>
+    )
+  }
+
+  renderTrack(track){
+    return(
+      <div>{track.name}</div>
+    )
+  }
+
+
+}
+
+TrackList.propTypes = {
+  tracks: PropTypes.array.isRequired,
+}

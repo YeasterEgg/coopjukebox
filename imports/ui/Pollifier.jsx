@@ -1,12 +1,16 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
+import TrackList from './TrackList.jsx'
+
+request = require('request')
+querystring = require('querystring')
 
 import { LoggedUsers } from '../api/loggedUsers.js'
 
 const crypto = require('crypto')
 
-class Pollifier extends Component {
+export default class Pollifier extends Component {
 
   // State set
 
@@ -88,11 +92,27 @@ class Pollifier extends Component {
 
   renderSearchForm(){
     return(
-      <div className="home--search_form">CIAONE</div>
+      <div className="home--search_form">
+        <input name="track_search" id="track_search" type="text" size="20" maxLength="50"/>
+        <button type="submit" onClick={this.searchTrack.bind(this)}>Search for this Track!</button>
+        <div className="home--search_results">
+          {this.renderTrackList()}
+        </div>
+      </div>
     )
   }
 
-  // Classic Methods
+  renderTrackList(){
+    return (
+      <TrackList tracks={[{name: 'test'}]} />
+    )
+  }
+
+  renderTracks(){
+
+  }
+
+  // API Methods
 
   getAuth(){
     sessionId = crypto.randomBytes(64).toString('hex')
@@ -121,10 +141,26 @@ class Pollifier extends Component {
     })
   }
 
-  addTrackToPlaylist(){
-    userId = this.state.currentToken.userId
-    playlistId = "ciao"
-    url = "https://api.spotify.com/v1/users/" + this.state.currentToken.userId + "/playlists/{playlist_id}/tracks"
+  searchTrack(){
+    params = {
+      q: document.getElementById('track_search').value,
+      type: "track"
+    }
+    url = "https://api.spotify.com/v1/search?" + querystring.stringify(params)
+    xhr = new XMLHttpRequest()
+    xhr.open('GET', url, true)
+    xhr.onload = function (event){
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        this.renderTracks(JSON.parse(xhr.responseText))
+      }
+    }.bind(this)
+    xhr.send(null)
+  }
+
+  addTrack(){
+    userId = this.state.currentUser.spotifyId
+    playlistId = this.state.currentUser.playlist.playlistSpotifyId
+    url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
   }
 
 }
@@ -132,7 +168,7 @@ class Pollifier extends Component {
 Pollifier.propTypes = {
   subscription: PropTypes.bool.isRequired,
   users: PropTypes.array.isRequired,
-};
+}
 
 export default createContainer(() => {
   const usersSubscription = Meteor.subscribe('loggedUsers')
@@ -140,5 +176,5 @@ export default createContainer(() => {
   return {
     users: LoggedUsers.find().fetch(),
     subscription: usersSubscription.ready()
-  };
-}, Pollifier);
+  }
+}, Pollifier)
