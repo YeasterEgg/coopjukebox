@@ -31,6 +31,22 @@ body {
   padding-top:100px;
 }
 
+/* TrackList */
+
+.homepage--track{
+  border: 1px black solid;
+  background-color: aliceblue;
+  height: 18px;
+  width: 40%;
+  margin: auto;
+  overflow: hidden;
+  line-height: 14px;
+}
+
+.homepage--track{
+  padding-top: 10px;
+}
+
 /* Loader */
 
 .loader--dots {

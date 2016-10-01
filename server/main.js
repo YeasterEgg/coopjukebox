@@ -116,4 +116,9 @@ Meteor.methods({
     LoggedUsers.update({_id: userId}, {$set: {playlist: {playlistName: object.name, playlistSpotifyId: result.body.id}}})
   },
 
+  "addTrackToPlaylist": function(url, accessToken, object, userId){
+    result = postApiWrapper(url, accessToken, object)
+    console.log(result.body)
+  },
+
 })

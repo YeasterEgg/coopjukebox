@@ -11,7 +11,7 @@ export default class TrackList extends Component {
       <div className="homepage--tracklist">
         {this.props.tracks.map(function(track){
           return(
-            <Track track={track} key={track.id} addTrack={this.props.addTrack}/>
+            <Track track={track} key={track.id} addTrack={this.props.addTrack.bind(this)}/>
           )
         }.bind(this))}
       </div>
@@ -29,4 +29,5 @@ export default class TrackList extends Component {
 
 TrackList.propTypes = {
   tracks: PropTypes.array.isRequired,
+  addTrack: PropTypes.func.isRequired
 }

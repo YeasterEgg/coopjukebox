@@ -94,8 +94,8 @@ export default class Pollifier extends Component {
   renderSearchForm(){
     return(
       <div className="home--search_form">
-        <input name="track_search" id="track_search" type="text" size="20" maxLength="50"/>
-        <button type="submit" onClick={this.searchTrack.bind(this)}>Search for this Track!</button>
+        <input name="track_search" id="track_search" type="text" size="20" maxLength="50" onChange={this.searchTrack.bind(this)}/>
+        <button type="submit">Search for this Track!</button>
         <div className="home--search_results">
           {this.renderTrackList()}
         </div>
@@ -105,7 +105,7 @@ export default class Pollifier extends Component {
 
   renderTrackList(trackList){
     return (
-      <TrackList tracks={this.state.trackList} addTrack={this.addTrack} />
+      <TrackList tracks={this.state.trackList} addTrack={this.addTrack.bind(this)} />
     )
   }
 
@@ -155,13 +155,18 @@ export default class Pollifier extends Component {
     xhr.send(null)
   }
 
-  addTrack(){
-    console.log(this)
-    console.log(track)
-    // userId = Meteor.state.currentUser.spotifyId
-    // playlistId = Meteor.state.currentUser.playlist.playlistSpotifyId
-    // url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
-    // console.log(url)
+  addTrack(track){
+    userId = this.state.currentUser.spotifyId
+    playlistId = this.state.currentUser.playlist.playlistSpotifyId
+    url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
+    trackUri = track.uri
+    token = this.state.currentUser.token.accessToken
+    options = {
+      uris: [track.uri]
+    }
+    Meteor.call("addTrackToPlaylist", url, token, options, userId, function(result){
+      console.log(result)
+    })
   }
 
 }
