@@ -6,7 +6,6 @@ import Track from './Track.jsx'
 export default class TrackList extends Component {
 
   render(){
-    console.log(this.props)
     return(
       <div className="homepage--tracklist">
         {this.props.tracks.map(function(track){

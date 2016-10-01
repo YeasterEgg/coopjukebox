@@ -1,22 +1,20 @@
 import React from 'react'
 import { Meteor } from 'meteor/meteor'
 import { render } from 'react-dom'
-import Pollifier from '../imports/ui/Pollifier.jsx'
+import PollRouter from '../imports/ui/PollRouter.jsx'
 
 apiHelper = require('../imports/lib/apiHelper.js')
 
+
 Meteor.startup(() => {
+  // // First filter, if it's a redirection from Spotify Auth Site
 
-  // First filter, if it's a redirection from Spotify Auth Site
-
-  queryParams = apiHelper.returnParams(window.location.href)
-  if(queryParams["code"] && (queryParams["state"] == localStorage.getItem("sessionId"))){
-    Meteor.call("createUser", queryParams["code"], queryParams["state"])
-    window.location.replace("http://localhost:3000")
-  }
-
-
-  render(<Pollifier playlistId={queryParams["playlistId"] || ""} />, document.getElementById('render-target'));
+  // queryParams = apiHelper.returnParams(window.location.href)
+  // if(queryParams["code"] && (queryParams["state"] == localStorage.getItem("sessionId"))){
+  //   Meteor.call("createUser", queryParams["code"], queryParams["state"])
+  //   window.location.replace("http://localhost:3000")
+  // }
+  render(<PollRouter />, document.getElementById('render-target'));
 });
 
 

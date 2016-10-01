@@ -43,6 +43,15 @@ postApi = function(url, accessToken, object, callback){
   request.post(options, callback)
 }
 
+getTokenFromUser = function(userId){
+  user = LoggedUsers.findOne({_id: userId})
+  if(user){
+    accessToken = user.token.accessToken
+    return accessToken
+  }else{
+    return false
+  }
+}
 
 // Asynchronous functions wrappers
 
@@ -89,11 +98,9 @@ Meteor.methods({
       uri: getUserData.body.uri,
       spotifyId: getUserData.body.id,
       sessionId: sessionId,
-      playlist: {
-        playlistName: false,
-        playlistSpotifyId: false,
-        pollId: false,
-      },
+      playlistName: "",
+      playlistSpotifyId: "",
+      pollId: "",
       token: {
         accessToken: getToken.body.access_token,
         tokenType: getToken.body.token_type,
@@ -107,18 +114,26 @@ Meteor.methods({
   },
 
   "refreshToken": function(url, accessToken, object){
-    // result = postApiWrapper(url, accessToken, object)
-    // console.log(result.body)
+    console.log(getTokenFromUser('XifPMvu6heJKxp6Rv'))
   },
 
   "createPlaylist": function(url, accessToken, object, userId){
     result = postApiWrapper(url, accessToken, object)
-    LoggedUsers.update({_id: userId}, {$set: {playlist: {playlistName: object.name, playlistSpotifyId: result.body.id}}})
+    pollId = crypto.randomBytes(8).toString('hex')
+    LoggedUsers.update({_id: userId}, {$set: {playlistName: object.name, playlistSpotifyId: result.body.id, pollId: pollId }})
   },
 
   "addTrackToPlaylist": function(url, accessToken, object, userId){
     result = postApiWrapper(url, accessToken, object)
-    console.log(result.body)
+  },
+
+  "userFromPollId": function(pollId) {
+    user = LoggedUsers.findOne({pollId: pollId})
+    if(user){
+      return {result: true, userId: user._id, playlistName: user.playlistName}
+    }else{
+      return {result: false}
+    }
   },
 
 })

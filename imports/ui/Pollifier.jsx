@@ -30,7 +30,6 @@ export default class Pollifier extends Component {
     Meteor.call("loggedUsers.fromSessionId", localStorage.sessionId, function(error, result){
       if(result.logged){
         this.setState({loggedUser: true, currentUser: result.user})
-        console.log(this.state)
         if(result.user.playlist.playlistSpotifyId){
           this.setState({playlistPresent: true})
         }
@@ -165,7 +164,6 @@ export default class Pollifier extends Component {
       uris: [track.uri]
     }
     Meteor.call("addTrackToPlaylist", url, token, options, userId, function(result){
-      console.log(result)
     })
   }
 
