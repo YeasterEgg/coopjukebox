@@ -74,7 +74,7 @@ Meteor.methods({
     })
     headers = {'Authorization': 'Bearer ' + user.token.accessToken }
     result = postApiWrapper(url, headers, form)
-    if(result.body.error && result.body.error.status == 410){
+    if(result.body.error && result.body.error.status == 401){
       // {error: { status: 401, message: 'The access token expired' }}
       updateToken(user._id)
       Meteor.call('addTrackToPlaylist', pollId, trackUri)
