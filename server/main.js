@@ -7,7 +7,7 @@ Meteor.startup(() => {
 
 getApiWrapper = Meteor.wrapAsync(getApi)
 postApiWrapper = Meteor.wrapAsync(postApi)
-// updateTokenWrapper = Meteor.wrapAsync(updateToken)
+updateTokenWrapper = Meteor.wrapAsync(updateToken)
 
 Meteor.methods({
 
@@ -66,21 +66,19 @@ Meteor.methods({
 
   "addTrackToPlaylist": function(pollId, trackUri){
     user = LoggedUsers.findOne({pollId: pollId})
-    test = updateToken(user._id, function(){
-      console.log(result)
+    userId = user.spotifyId
+    playlistId = user.playlistSpotifyId
+    url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
+    form = JSON.stringify({
+      uris: [trackUri]
     })
-    console.log(test)
-    // userId = user.spotifyId
-    // playlistId = user.playlistSpotifyId
-    // url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
-
-    // accessToken = userTokenWrapper(user._id)
-    // form = {
-    //   uris: [trackUri]
-    // }
-
-    // result = postApiWrapper(url, headers, form)
-    // console.log(result.body)
+    headers = {'Authorization': 'Bearer ' + user.token.accessToken }
+    result = postApiWrapper(url, headers, form)
+    if(result.body.error && result.body.error.status == 410){
+      // {error: { status: 401, message: 'The access token expired' }}
+      updateToken(user._id)
+      Meteor.call('addTrackToPlaylist', pollId, trackUri)
+    }
   },
 
   "userFromPollId": function(pollId) {

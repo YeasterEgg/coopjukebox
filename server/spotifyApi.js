@@ -15,5 +15,6 @@ postApi = function(url, headers, form, callback){
     form: form,
     json: true
   };
+  console.log(options)
   request.post(options, callback)
 }

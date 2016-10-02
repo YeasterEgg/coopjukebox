@@ -24,11 +24,17 @@ getTokenFromUser = function(userId){
 
 updateToken = function(userId){
   user = LoggedUsers.findOne({_id: userId})
-  if(!user) return null
+  if(!user){
+    console.log('no user')
+    return null
+  }
   token = user.token
   expiringDate = new Date(token.validationStart.getTime() + token.expiresIn * 1000)
   now = new Date
-  if(expiringDate > now) return null
+  if(expiringDate > now){
+    console.log('token valid')
+    return null
+  }
   url = config.tokenUrl
   form = {
           grant_type: 'refresh_token',
@@ -36,7 +42,6 @@ updateToken = function(userId){
         }
   headers = { 'Authorization': 'Basic ' + (new Buffer(config.clientId + ':' + config.clientSecret).toString('base64')) }
   newTokenResponse = postApiWrapper(url, headers, form)
-  console.log(newTokenResponse.body)
   LoggedUsers.update({_id: userId}, {$set: {token: {
                                                     accessToken: newTokenResponse.body.access_token,
                                                     tokenType: newTokenResponse.body.token_type,
