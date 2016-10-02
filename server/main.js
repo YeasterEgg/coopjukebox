@@ -1,97 +1,40 @@
 import { Meteor } from 'meteor/meteor'
 import { LoggedUsers } from '../imports/api/loggedUsers.js'
 
-apiHelper = require('../imports/lib/apiHelper.js')
-config = require('../imports/lib/config.js')
-request = require('request')
-querystring = require('querystring')
-
-// Asynchronous Functions
-
-getTokenValue = function(code, callback){
-  authOptions = {
-                  url: config.tokenUrl,
-                  form: {
-                    code: code,
-                    redirect_uri: config.redirectUri,
-                    grant_type: 'authorization_code'
-                  },
-                  headers: {
-                    'Authorization': 'Basic ' + (new Buffer(config.clientId + ':' + config.clientSecret).toString('base64'))
-                  },
-                  json: true
-                }
-  request.post(authOptions, callback)
-}
-
-getApi = function(url, accessToken, callback){
-  options = {
-    url: url,
-    headers: { 'Authorization': 'Bearer ' + accessToken },
-    json: true
-  };
-  request.get(options, callback)
-}
-
-postApi = function(url, accessToken, object, callback){
-  options = {
-    url: url,
-    headers: { 'Authorization': 'Bearer ' + accessToken },
-    form: JSON.stringify(object),
-    json: true
-  };
-  request.post(options, callback)
-}
-
-getTokenFromUser = function(userId){
-  user = LoggedUsers.findOne({_id: userId})
-  if(user){
-    accessToken = user.token.accessToken
-    return accessToken
-  }else{
-    return false
-  }
-}
-
-// Asynchronous functions wrappers
-
-tokenValueWrapper = Meteor.wrapAsync(getTokenValue)
-
-getApiWrapper = Meteor.wrapAsync(getApi)
-
-postApiWrapper = Meteor.wrapAsync(postApi)
-
-
-// Meteor Server
-
 Meteor.startup(() => {
 })
 
-
-// Meteor Methods
+getApiWrapper = Meteor.wrapAsync(getApi)
+postApiWrapper = Meteor.wrapAsync(postApi)
+// updateTokenWrapper = Meteor.wrapAsync(updateToken)
 
 Meteor.methods({
 
   // Goes to Spotify Auth Page and returns to the callback uri with 2 codes, used to get a valid Token
-
   "getAuthUrl": function(sessionId){
-    return apiHelper.getAuth(config.clientId, config.redirectUri, config.scope, sessionId, config.authUrl)
+    return getAuth(config.clientId, config.redirectUrl, config.scope, sessionId, config.authUrl)
   },
 
   // Gets a user Token and creates the User, associated to Token, Playlist and SessionId
-
   "createUser": function(code, sessionId){
 
     // First part, gets the token
-
-    getToken = tokenValueWrapper(code)
+    tokenUrl = config.tokenUrl
+    tokenHeaders = {'Authorization': 'Basic ' + (new Buffer(config.clientId + ':' + config.clientSecret).toString('base64'))}
+    form = {
+            code: code,
+            redirect_uri: config.redirectUrl,
+            grant_type: 'authorization_code'
+          }
+    getToken = postApiWrapper(tokenUrl, tokenHeaders, form)
+    console.log(getToken.body)
 
     // Then it gets the User data with the newly obtained token
+    userUrl = config.userUrl
+    userHeaders = { 'Authorization': 'Bearer ' + getToken.body.access_token }
+    getUserData = getApiWrapper(config.userUrl, getToken.body.access_token)
 
-    getUserData = getApiWrapper("https://api.spotify.com/v1/me/", getToken.body.access_token)
-
-    // Finally stores everything in a new User, with nested data about token and playlist
-
+    // // Finally stores everything in a new User, with a nested token object
     LoggedUsers.insert({
       name: getUserData.body.display_name,
       email: getUserData.body.email,
@@ -113,18 +56,31 @@ Meteor.methods({
     })
   },
 
-  "refreshToken": function(url, accessToken, object){
-    console.log(getTokenFromUser('XifPMvu6heJKxp6Rv'))
-  },
-
   "createPlaylist": function(url, accessToken, object, userId){
-    result = postApiWrapper(url, accessToken, object)
+    headers = {'Authorization': 'Bearer ' + accessToken },
+    form = JSON.stringify(object),
+    result = postApiWrapper(url, headers, form)
     pollId = crypto.randomBytes(8).toString('hex')
     LoggedUsers.update({_id: userId}, {$set: {playlistName: object.name, playlistSpotifyId: result.body.id, pollId: pollId }})
   },
 
-  "addTrackToPlaylist": function(url, accessToken, object, userId){
-    result = postApiWrapper(url, accessToken, object)
+  "addTrackToPlaylist": function(pollId, trackUri){
+    user = LoggedUsers.findOne({pollId: pollId})
+    test = updateToken(user._id, function(){
+      console.log(result)
+    })
+    console.log(test)
+    // userId = user.spotifyId
+    // playlistId = user.playlistSpotifyId
+    // url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
+
+    // accessToken = userTokenWrapper(user._id)
+    // form = {
+    //   uris: [trackUri]
+    // }
+
+    // result = postApiWrapper(url, headers, form)
+    // console.log(result.body)
   },
 
   "userFromPollId": function(pollId) {

@@ -11,23 +11,27 @@ export default class Voter extends Component {
     super(props)
     this.state = {
       trackList: [],
-      pollValid: false
+      pollId: false
     }
   }
 
   // Rendering Methods
 
   render(){
-    Meteor.call("userFromPollId", this.props.params.pollId, function(error, result){
-      console.log(error)
-      console.log(result)
-    })
-    console.log(this.props)
-    if(this.state.pollValid){
-      return(<div>{this.renderPage()}</div>)
+    if(this.state.pollId){
+      return(<div className="homepage--father_container">{this.renderPage()}</div>)
     }else{
-      return(<div>{this.renderWaiter()}</div>)
+      return(<div className="homepage--father_container">{this.renderWaiter()}</div>)
     }
+  }
+
+  componentWillMount(){
+    pollId = this.props.params.pollId
+    Meteor.call("userFromPollId", pollId, function(error, result){
+      if(!error){
+        this.setState({pollId: pollId})
+      }
+    }.bind(this))
   }
 
   renderWaiter(){
@@ -59,32 +63,31 @@ export default class Voter extends Component {
   }
 
   searchTrack(){
-    params = {
-      q: document.getElementById('track_search').value,
-      type: "track"
-    }
-    url = "https://api.spotify.com/v1/search?" + querystring.stringify(params)
-    xhr = new XMLHttpRequest()
-    xhr.open('GET', url, true)
-    xhr.onload = function (event){
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        trackList = JSON.parse(xhr.responseText).tracks.items
-        this.setState({trackList: trackList})
+    if(document.getElementById('track_search').value.length > 3){
+      params = {
+        q: document.getElementById('track_search').value,
+        type: "track"
       }
-    }.bind(this)
-    xhr.send(null)
+      url = "https://api.spotify.com/v1/search?" + querystring.stringify(params)
+      xhr = new XMLHttpRequest()
+      xhr.open('GET', url, true)
+      xhr.onload = function (event){
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          trackList = JSON.parse(xhr.responseText).tracks.items
+          this.setState({trackList: trackList})
+        }
+      }.bind(this)
+      xhr.send(null)
+    }
   }
 
   addTrack(track){
-    userId = this.props.playlist.userSpotifyId
-    playlistId = this.props.playlist.playlistSpotifyId
-    url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
+    pollId = this.state.pollId
     trackUri = track.uri
-    token = this.props.playlist
-    options = {
-      uris: [track.uri]
-    }
-    Meteor.call("addTrackToPlaylist", url, token, options, userId, function(result){
+    console.log(pollId)
+    console.log(trackUri)
+    Meteor.call("addTrackToPlaylist", pollId, trackUri, function(result){
+      console.log(result)
     })
   }
 }

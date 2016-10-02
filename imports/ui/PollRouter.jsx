@@ -3,6 +3,7 @@ import { render } from 'react-dom'
 import { browserHistory, Router, Route, Link } from 'react-router'
 import Voter from './Voter.jsx'
 import Pollifier from './Pollifier.jsx'
+import Callback from './Callback.jsx'
 
 export default class PollRouter extends Component {
   render(){
@@ -10,6 +11,7 @@ export default class PollRouter extends Component {
       <Router history={browserHistory}>
         <Route path="/" component={Pollifier} />
         <Route path="/pl/:pollId" component={Voter} />
+        <Route path="/callback" component={Callback} />
       </Router>
     )
   }

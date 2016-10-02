@@ -26,11 +26,11 @@ export default class Pollifier extends Component {
 
   // Force the check at the DOMready, or something like that
 
-  componentDidMount(){
+  componentWillMount(){
     Meteor.call("loggedUsers.fromSessionId", localStorage.sessionId, function(error, result){
       if(result.logged){
         this.setState({loggedUser: true, currentUser: result.user})
-        if(result.user.playlist.playlistSpotifyId){
+        if(result.user.playlistSpotifyId){
           this.setState({playlistPresent: true})
         }
       }
@@ -60,7 +60,7 @@ export default class Pollifier extends Component {
   renderPage(){
     if(this.state.loggedUser){
       return (
-        <div className="homepage--father_container">{this.renderSpotifyForm()}</div>
+        <div className="homepage--father_container">{this.renderPlaylist()}</div>
       )
     }else{
       return (
@@ -75,10 +75,10 @@ export default class Pollifier extends Component {
     )
   }
 
-  renderSpotifyForm(){
+  renderPlaylist(){
     if(this.state.playlistPresent){
       return(
-        <div>{this.renderSearchForm()}</div>
+        <div>{this.renderPoll()}</div>
       )
     }else{
       return(
@@ -90,28 +90,38 @@ export default class Pollifier extends Component {
     }
   }
 
-  renderSearchForm(){
+  renderPoll(){
+    pollUrl = "http://localhost:3000/pl/" + this.state.currentUser.pollId
     return(
-      <div className="home--search_form">
-        <input name="track_search" id="track_search" type="text" size="20" maxLength="50" onChange={this.searchTrack.bind(this)}/>
-        <button type="submit">Search for this Track!</button>
-        <div className="home--search_results">
-          {this.renderTrackList()}
-        </div>
+      <div className="homepage--poll_url">
+        <div className="homepage--poll_label">Use the following url:</div>
+        <a className="homepage--poll_id" href={pollUrl}>{pollUrl}</a>
       </div>
     )
   }
 
-  renderTrackList(trackList){
-    return (
-      <TrackList tracks={this.state.trackList} addTrack={this.addTrack.bind(this)} />
-    )
-  }
+  // renderSearchForm(){
+  //   return(
+  //     <div className="home--search_form">
+  //       <input name="track_search" id="track_search" type="text" size="20" maxLength="50" onChange={this.searchTrack.bind(this)}/>
+  //       <button type="submit">Search for this Track!</button>
+  //       <div className="home--search_results">
+  //         {this.renderTrackList()}
+  //       </div>
+  //     </div>
+  //   )
+  // }
+
+  // renderTrackList(trackList){
+  //   return (
+  //     <TrackList tracks={this.state.trackList} addTrack={this.addTrack.bind(this)} />
+  //   )
+  // }
 
   // API Methods
 
   getAuth(){
-    sessionId = crypto.randomBytes(64).toString('hex')
+    sessionId = crypto.randomBytes(64).toString('base64')
     localStorage.setItem("sessionId", sessionId)
     Meteor.call('getAuthUrl', sessionId, function(error, spotifyAuthUrl){
       if(!error){
@@ -134,38 +144,38 @@ export default class Pollifier extends Component {
     userId = this.state.currentUser._id
     Meteor.call("createPlaylist", url, token, options, userId, function(result){
       this.setState("playlistPresent", true)
-    })
+    }.bind(this))
   }
 
-  searchTrack(){
-    params = {
-      q: document.getElementById('track_search').value,
-      type: "track"
-    }
-    url = "https://api.spotify.com/v1/search?" + querystring.stringify(params)
-    xhr = new XMLHttpRequest()
-    xhr.open('GET', url, true)
-    xhr.onload = function (event){
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        trackList = JSON.parse(xhr.responseText).tracks.items
-        this.setState({trackList: trackList})
-      }
-    }.bind(this)
-    xhr.send(null)
-  }
+  // searchTrack(){
+  //   params = {
+  //     q: document.getElementById('track_search').value,
+  //     type: "track"
+  //   }
+  //   url = "https://api.spotify.com/v1/search?" + querystring.stringify(params)
+  //   xhr = new XMLHttpRequest()
+  //   xhr.open('GET', url, true)
+  //   xhr.onload = function (event){
+  //     if (xhr.readyState === 4 && xhr.status === 200) {
+  //       trackList = JSON.parse(xhr.responseText).tracks.items
+  //       this.setState({trackList: trackList})
+  //     }
+  //   }.bind(this)
+  //   xhr.send(null)
+  // }
 
-  addTrack(track){
-    userId = this.state.currentUser.spotifyId
-    playlistId = this.state.currentUser.playlist.playlistSpotifyId
-    url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
-    trackUri = track.uri
-    token = this.state.currentUser.token.accessToken
-    options = {
-      uris: [track.uri]
-    }
-    Meteor.call("addTrackToPlaylist", url, token, options, userId, function(result){
-    })
-  }
+  // addTrack(track){
+  //   userId = this.state.currentUser.spotifyId
+  //   playlistId = this.state.currentUser.playlistSpotifyId
+  //   url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
+  //   trackUri = track.uri
+  //   token = this.state.currentUser.token.accessToken
+  //   options = {
+  //     uris: [track.uri]
+  //   }
+  //   Meteor.call("addTrackToPlaylist", url, token, options, userId, function(result){
+  //   })
+  // }
 
 }
 
