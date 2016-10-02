@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { LoggedUsers } from '../imports/api/loggedUsers.js'
+const crypto = require('crypto')
 
 Meteor.startup(() => {
 })
@@ -27,12 +28,11 @@ Meteor.methods({
             grant_type: 'authorization_code'
           }
     getToken = postApiWrapper(tokenUrl, tokenHeaders, form)
-    console.log(getToken.body)
 
     // Then it gets the User data with the newly obtained token
     userUrl = config.userUrl
     userHeaders = { 'Authorization': 'Bearer ' + getToken.body.access_token }
-    getUserData = getApiWrapper(config.userUrl, getToken.body.access_token)
+    getUserData = getApiWrapper(userUrl, userHeaders)
 
     // // Finally stores everything in a new User, with a nested token object
     LoggedUsers.insert({

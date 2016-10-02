@@ -4,6 +4,7 @@ getApi = function(url, headers, callback){
     headers: headers,
     json: true
   };
+  console.log(options)
   request.get(options, callback)
 }
 
@@ -11,7 +12,7 @@ postApi = function(url, headers, form, callback){
   options = {
     url: url,
     headers: headers,
-    params: JSON.stringify(form),
+    form: form,
     json: true
   };
   request.post(options, callback)

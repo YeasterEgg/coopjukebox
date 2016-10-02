@@ -143,7 +143,7 @@ export default class Pollifier extends Component {
     token = this.state.currentUser.token.accessToken
     userId = this.state.currentUser._id
     Meteor.call("createPlaylist", url, token, options, userId, function(result){
-      this.setState("playlistPresent", true)
+      this.setState({playlistPresent: true})
     }.bind(this))
   }
 
