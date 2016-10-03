@@ -1,8 +1,8 @@
 import React from 'react'
 import { Meteor } from 'meteor/meteor'
 import { render } from 'react-dom'
-import PollRouter from '../imports/ui/PollRouter.jsx'
+import AppRouter from '../imports/ui/AppRouter.jsx'
 
 Meteor.startup(() => {
-  render(<PollRouter />, document.getElementById('render-target'));
+  render(<AppRouter />, document.getElementById('render-target'));
 });

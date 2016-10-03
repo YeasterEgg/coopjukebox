@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { LoggedUsers } from '../imports/api/loggedUsers.js'
-import { Polls } from '../imports/api/polls.js'
+import { Songlists } from '../imports/api/songlists.js'
 const crypto = require('crypto')
 
 Meteor.startup(() => {
@@ -43,8 +43,9 @@ Meteor.methods({
       spotifyId: getUserData.body.id,
       sessionId: sessionId,
       playlistName: "",
+      playlistLength: 0,
       playlistSpotifyId: "",
-      pollId: "",
+      songlistId: "",
       token: {
         accessToken: getToken.body.access_token,
         tokenType: getToken.body.token_type,
@@ -57,19 +58,23 @@ Meteor.methods({
     })
   },
 
-  "createPlaylist": function(url, accessToken, object, userId){
+  "createPlaylist": function(options, userId){
+    updateToken(userId)
+    accessToken = LoggedUsers.findOne({_id: userId}).token.accessToken
+    userSpotifyId = LoggedUsers.findOne({_id: userId}).spotifyId
+    url = config.playlistUrl(userSpotifyId)
     headers = {'Authorization': 'Bearer ' + accessToken },
-    form = JSON.stringify(object),
+    form = JSON.stringify(_.pick(options, ['name', 'public']))
     result = postApiWrapper(url, headers, form)
-    pollId = crypto.randomBytes(8).toString('hex')
-    LoggedUsers.update({_id: userId}, {$set: {playlistName: object.name, playlistSpotifyId: result.body.id, pollId: pollId }})
+    songlistId = crypto.randomBytes(8).toString('hex')
+    LoggedUsers.update({_id: userId}, {$set: {playlistName: options.name, playlistLength: options.length, playlistSpotifyId: result.body.id, songlistId: songlistId }})
 
-    // As of now, it just creates a Poll at the same time
+    // As of now, it just creates a songlist at the same time
 
-    pollId = LoggedUsers.findOne({_id: userId}).pollId
-    Polls.insert({
+    songlistId = LoggedUsers.findOne({_id: userId}).songlistId
+    Songlists.insert({
       playlist: object.name,
-      pollId: pollId,
+      songlistId: songlistId,
       userId: userId,
       possibleChoices: {},
       chosenTracks: {},
@@ -78,8 +83,8 @@ Meteor.methods({
     })
   },
 
-  "addTrackToPlaylist": function(pollId, trackUri){
-    user = LoggedUsers.findOne({pollId: pollId})
+  "addTrackToPlaylist": function(songlistId, trackUri){
+    user = LoggedUsers.findOne({songlistId: songlistId})
     userId = user.spotifyId
     playlistId = user.playlistSpotifyId
     url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
@@ -91,27 +96,27 @@ Meteor.methods({
     if(result.body.error && result.body.error.status == 401){
       // {error: { status: 401, message: 'The access token expired' }}
       updateToken(user._id)
-      Meteor.call('addTrackToPlaylist', pollId, trackUri)
+      Meteor.call('addTrackToPlaylist', songlistId, trackUri)
     }
   },
 
-  "addTrackToPoll": function(pollId, track){
-    poll = Polls.findOne({pollId: pollId})
-    if(!poll) return null
-    if(poll.maxChoices > Object.keys(poll.possibleChoices).length){
+  "addTrackToSonglist": function(songlistId, track){
+    songlist = Songlists.findOne({songlistId: songlistId})
+    if(!songlist) return null
+    if(songlist.maxChoices > Object.keys(songlist.possibleChoices).length){
       newTrack = getTrackValues(track)
       newTrack.votes = 0
-      Polls.update({pollId: pollId}, {$set: {['possibleChoices.spo_'+newTrack.spotifyId]: newTrack}})
+      Songlists.update({songlistId: songlistId}, {$set: {['possibleChoices.spo_'+newTrack.spotifyId]: newTrack}})
     }
   },
 
-  "addVoteToTrack": function(pollId, track){
-    poll = Polls.findOne({pollId: pollId})
-    Polls.update({pollId: pollId}, {$inc: {['possibleChoices.spo_'+track.spotifyId+'.votes']: 1}})
+  "addVoteToTrack": function(songlistId, track){
+    songlist = Songlists.findOne({songlistId: songlistId})
+    Songlists.update({songlistId: songlistId}, {$inc: {['possibleChoices.spo_'+track.spotifyId+'.votes']: 1}})
   },
 
-  "userFromPollId": function(pollId) {
-    user = LoggedUsers.findOne({pollId: pollId})
+  "userFromSonglistId": function(songlistId) {
+    user = LoggedUsers.findOne({songlistId: songlistId})
     if(user){
       return {result: true, userId: user._id, playlistName: user.playlistName}
     }else{
