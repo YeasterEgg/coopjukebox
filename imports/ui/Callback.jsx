@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
+import Waiter from './Waiter.jsx'
 
 export default class Voter extends Component {
 
@@ -14,18 +14,7 @@ export default class Voter extends Component {
 
   render(){
     return(
-      <div>{this.renderWaiter()}</div>
+      <Waiter />
     )
   }
-
-  renderWaiter(){
-    return(
-      <div className="loader--container">
-        <div className="loader--dots">
-          {"{"}<span>.</span><span>.</span><span>.</span>{"}"}
-        </div>
-      </div>
-    )
-  }
-
 }

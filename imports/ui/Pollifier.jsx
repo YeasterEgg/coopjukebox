@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
+import Waiter from './Waiter.jsx'
 
 request = require('request')
 querystring = require('querystring')
@@ -42,7 +43,7 @@ export default class Pollifier extends Component {
     if(this.props.subscription){
       return(<div>{this.renderPage()}</div>)
     }else{
-      return(<div>{this.renderWaiter()}</div>)
+      return(<Waiter />)
     }
   }
 

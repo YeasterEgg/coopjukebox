@@ -1,11 +1,9 @@
 import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
 import TrackSearch from './TrackSearch.jsx'
+import Waiter from './Waiter.jsx'
 
 export default class Chooser extends Component {
-
-  // State set
 
   constructor(props){
     super(props)
@@ -15,13 +13,11 @@ export default class Chooser extends Component {
     }
   }
 
-  // Rendering Methods
-
   render(){
     if(this.state.pollId){
       return(<div className="homepage--father_container">{this.renderPage()}</div>)
     }else{
-      return(<div className="homepage--father_container">{this.renderWaiter()}</div>)
+      return(<div className="homepage--father_container"><Waiter /></div>)
     }
   }
 
@@ -32,16 +28,6 @@ export default class Chooser extends Component {
         this.setState({pollId: pollId})
       }
     }.bind(this))
-  }
-
-  renderWaiter(){
-    return(
-      <div className="loader--container">
-        <div className="loader--dots">
-          {"{"}<span>.</span><span>.</span><span>.</span>{"}"}
-        </div>
-      </div>
-    )
   }
 
   renderPage(){

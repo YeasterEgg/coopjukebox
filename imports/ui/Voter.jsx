@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
 import TrackList from './TrackList.jsx'
+import Waiter from './Waiter.jsx'
 
 export default class Voter extends Component {
 
@@ -9,10 +10,17 @@ export default class Voter extends Component {
     super(props)
     this.state = {
       voted: false,
+      pollExists: false
     }
   }
 
   componentWillMount(){
+    Meteor.call("userFromPollId", this.props.params.pollId, function(error, result){
+      if(!error){
+        this.setState({pollExists: true})
+      }
+    }.bind(this))
+
     pollsVoted = JSON.parse(localStorage.getItem("pollifierVotedFor"))
     if(!pollsVoted){return null}
     if(pollsVoted[this.props.params.pollId]){
@@ -22,6 +30,18 @@ export default class Voter extends Component {
   }
 
   render(){
+    if(this.state.pollExists){
+      return(
+        <div>{this.renderPage()}</div>
+      )
+    }else{
+      return(
+        <Waiter />
+      )
+    }
+  }
+
+  renderPage(){
     if(this.state.voted){
       src = "https://embed.spotify.com/?uri=spotify:track:" + this.state.voted
       return(
