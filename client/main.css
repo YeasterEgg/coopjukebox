@@ -30,17 +30,16 @@ body {
 /* Voters */
 
 .voter_page--tracklist_container{
-  border: 1px black solid;
   background-color: aliceblue;
-  height: 18px;
-  width: 40%;
+  width: 80%;
   margin: auto;
-  overflow: hidden;
-  line-height: 14px;
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.homepage--tracksearch{
-  padding-top: 10px;
+.track--cell{
+  border: 1px black solid;
+  width: 20%;
 }
 
 /* Loader */

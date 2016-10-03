@@ -31,7 +31,6 @@ export default class Voter extends Component {
     Meteor.call("userFromPollId", pollId, function(error, result){
       if(!error){
         this.setState({pollId: pollId})
-        console.log(result)
       }
     }.bind(this))
   }
@@ -51,7 +50,6 @@ export default class Voter extends Component {
       <div>
         <div className="home--search_form">
           <input name="track_search" id="track_search" type="text" size="20" maxLength="50" onChange={this.searchTrack.bind(this)}/>
-          <button type="submit">Search for this Track!</button>
           <div className="home--search_results">
             {this.renderTrackSearch(this.state.trackSearch)}
           </div>
@@ -65,7 +63,7 @@ export default class Voter extends Component {
 
   renderTrackList(){
     return(
-      <TrackList pollId={this.state.pollId} />
+      <TrackList pollId={this.state.pollId} addVoteToTrack={this.addVoteToTrack.bind(this)}/>
     )
   }
 
@@ -103,9 +101,17 @@ export default class Voter extends Component {
 
   addTrackToPoll(track){
     pollId = this.state.pollId
-    poll = Meteor.call("addTrackToPoll", pollId, track, function(error, result){
+    Meteor.call("addTrackToPoll", pollId, track, function(error, result){
       if(!error){
-        console.log(result)
+        return result
+      }
+    })
+  }
+
+  addVoteToTrack(track){
+    Meteor.call("addVoteToTrack", pollId, track, function(error, result){
+      if(!error){
+        return result
       }
     })
   }

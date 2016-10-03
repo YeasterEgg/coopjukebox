@@ -10,7 +10,7 @@ export default class TrackSearch extends Component {
       <div className="homepage--tracksearch">
         {this.props.tracks.map(function(track){
           return(
-            <Track track={track} key={track.id} addTrackToPoll={this.props.addTrackToPoll.bind(this)}/>
+            <Track track={track} key={track.id} clickOnTrack={this.props.addTrackToPoll.bind(this)}/>
           )
         }.bind(this))}
       </div>

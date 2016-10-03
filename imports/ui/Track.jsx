@@ -5,10 +5,8 @@ import ReactDOM from 'react-dom'
 export default class Track extends Component {
 
   render(){
-    track = this.props.track
-    artist = track.artists[0].name
-    minutes = Math.floor(track.duration_ms / 60000)
-    secondsInt = Math.floor((track.duration_ms % 60000)/1000)
+    minutes = Math.floor(this.props.track.duration_ms / 60000)
+    secondsInt = Math.floor((this.props.track.duration_ms % 60000)/1000)
     if(String(secondsInt).length == 1){
       seconds = "0" + secondsInt
     }else{
@@ -16,12 +14,12 @@ export default class Track extends Component {
     }
     return(
       // <div className="homepage--track" onClick={function(){this.props.addTrackToPoll(track)}.bind(this)} >
-      <div className="homepage--track" onClick={function(){this.props.addTrackToPoll(track)}.bind(this)} >
-        <span className="homepage--track_artist">{artist}</span>
+      <div className="track--cell" onClick={function(){this.props.clickOnTrack(this.props.track)}.bind(this)} >
+        <span className="track--artist">{this.props.track.artist}</span>
         <span> - </span>
-        <span className="homepage--track_title">{track.name}</span>
-        <span className="homepage--track_length">{`(${minutes}:${seconds})`}</span>
-        <span className="homepage--track_votes">{"Votes: " + track.votes}</span>
+        <span className="track--title">{this.props.track.name}</span>
+        <span className="track--length">{`(${minutes}:${seconds})`}</span>
+        <span className="track--votes">{"Votes: " + this.props.track.votes}</span>
       </div>
     )
   }
@@ -30,5 +28,5 @@ export default class Track extends Component {
 
 Track.propTypes = {
   track: PropTypes.object.isRequired,
-  addTrackToPoll: PropTypes.func.isRequired
+  clickOnTrack: PropTypes.func.isRequired
 }

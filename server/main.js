@@ -71,8 +71,8 @@ Meteor.methods({
       playlist: object.name,
       pollId: pollId,
       userId: userId,
-      possibleChoices: [],
-      chosenTracks: [],
+      possibleChoices: {},
+      chosenTracks: {},
       maxChoices: 20,
       playlistLength: 10,
     })
@@ -98,11 +98,16 @@ Meteor.methods({
   "addTrackToPoll": function(pollId, track){
     poll = Polls.findOne({pollId: pollId})
     if(!poll) return null
-    if(poll.maxChoices > poll.possibleChoices.length){
-      newTrack = track
-      newTrack['votes'] = 0
-      Polls.update({pollId: pollId}, {$addToSet: {possibleChoices: newTrack}})
+    if(poll.maxChoices > Object.keys(poll.possibleChoices).length){
+      newTrack = getTrackValues(track)
+      newTrack.votes = 0
+      Polls.update({pollId: pollId}, {$set: {['possibleChoices.spo_'+newTrack.spotifyId]: newTrack}})
     }
+  },
+
+  "addVoteToTrack": function(pollId, track){
+    poll = Polls.findOne({pollId: pollId})
+    Polls.update({pollId: pollId}, {$inc: {['possibleChoices.spo_'+track.spotifyId+'.votes']: 1}})
   },
 
   "userFromPollId": function(pollId) {

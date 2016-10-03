@@ -8,21 +8,13 @@ export default class TrackList extends Component {
 
   render(){
     return(
-      <table className="pure-table voter_page--tracklist_container">
-        <tbody>
-          <tr>
-            {this.props.tracks.map(function(track, index){
-              if(index%5 == 0){
-                return(
-                  <td>
-                    <Track track={track} key={track.id} addTrackToPoll={function(){console.log('ciao')}}/>
-                  </td>
-                )
-              }
-            }.bind(this))}
-          </tr>
-        </tbody>
-      </table>
+      <div className="voter_page--tracklist_container">
+        {Object.values(this.props.tracks).map(function(track){
+          return(
+            <Track track={track} key={track.spotifyId} clickOnTrack={this.props.addVoteToTrack.bind(this)}/>
+          )
+        }.bind(this))}
+      </div>
     )
   }
 
@@ -36,7 +28,8 @@ export default class TrackList extends Component {
 }
 
 TrackList.propTypes = {
-  tracks: PropTypes.array.isRequired,
+  tracks: PropTypes.object.isRequired,
+  addVoteToTrack: PropTypes.func.isRequired
 }
 
 export default createContainer((props) => {
@@ -45,12 +38,12 @@ export default createContainer((props) => {
   if(poll){
     tracks = poll.possibleChoices
   }else{
-    tracks = []
+    tracks = {}
   }
-
+  console.log(tracks)
   return {
     tracks: tracks,
-    subscription: pollTrackListSubscription.ready()
+    subscription: pollTrackListSubscription.ready(),
   }
 }, TrackList)
 
