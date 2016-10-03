@@ -1,118 +1,51 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
-import TrackSearch from './TrackSearch.jsx'
 import TrackList from './TrackList.jsx'
 
 export default class Voter extends Component {
 
-  // State set
-
   constructor(props){
     super(props)
     this.state = {
-      pollId: false,
-      trackSearch: []
-    }
-  }
-
-  // Rendering Methods
-
-  render(){
-    if(this.state.pollId){
-      return(<div className="homepage--father_container">{this.renderPage()}</div>)
-    }else{
-      return(<div className="homepage--father_container">{this.renderWaiter()}</div>)
+      voted: false,
     }
   }
 
   componentWillMount(){
-    pollId = this.props.params.pollId
-    Meteor.call("userFromPollId", pollId, function(error, result){
-      if(!error){
-        this.setState({pollId: pollId})
-      }
-    }.bind(this))
-  }
-
-  renderWaiter(){
-    return(
-      <div className="loader--container">
-        <div className="loader--dots">
-          {"{"}<span>.</span><span>.</span><span>.</span>{"}"}
-        </div>
-      </div>
-    )
-  }
-
-  renderPage(){
-    return (
-      <div>
-        <div className="home--search_form">
-          <input name="track_search" id="track_search" type="text" size="20" maxLength="50" onChange={this.searchTrack.bind(this)}/>
-          <div className="home--search_results">
-            {this.renderTrackSearch(this.state.trackSearch)}
-          </div>
-        </div>
-        <div className="home--track_list">
-          {this.renderTrackList(this.props.trackList)}
-        </div>
-      </div>
-    )
-  }
-
-  renderTrackList(){
-    return(
-      <TrackList pollId={this.state.pollId} addVoteToTrack={this.addVoteToTrack.bind(this)}/>
-    )
-  }
-
-  renderTrackSearch(trackSearch){
-    return (
-      <TrackSearch tracks={this.state.trackSearch} addTrackToPoll={this.addTrackToPoll.bind(this)} />
-    )
-  }
-
-  searchTrack(){
-    if(document.getElementById('track_search').value.length > 3){
-      params = {
-        q: document.getElementById('track_search').value,
-        type: "track"
-      }
-      url = "https://api.spotify.com/v1/search?" + querystring.stringify(params)
-      xhr = new XMLHttpRequest()
-      xhr.open('GET', url, true)
-      xhr.onload = function (event){
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          trackSearch = JSON.parse(xhr.responseText).tracks.items
-          this.setState({trackSearch: trackSearch})
-        }
-      }.bind(this)
-      xhr.send(null)
+    pollsVoted = JSON.parse(localStorage.getItem("pollifierVotedFor"))
+    if(!pollsVoted){return null}
+    if(pollsVoted[this.props.params.pollId]){
+      console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
+      this.setState({voted: pollsVoted[this.props.params.pollId]})
     }
   }
 
-  addTrack(track){
-    pollId = this.state.pollId
-    trackUri = track.uri
-    Meteor.call("addTrackToPlaylist", pollId, trackUri, function(result){
-    })
-  }
-
-  addTrackToPoll(track){
-    pollId = this.state.pollId
-    Meteor.call("addTrackToPoll", pollId, track, function(error, result){
-      if(!error){
-        return result
-      }
-    })
+  render(){
+    if(this.state.voted){
+      src = "https://embed.spotify.com/?uri=spotify:track:" + this.state.voted
+      return(
+        <div className="voter--voted_container">
+          <div className="voter--voted_title">Now, listen to what you have chosen!</div>
+          <iframe src={src} width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+        </div>
+      )
+    }else{
+      return (
+        <TrackList pollId={this.props.params.pollId} addVoteToTrack={this.addVoteToTrack.bind(this)}/>
+      )
+    }
   }
 
   addVoteToTrack(track){
-    Meteor.call("addVoteToTrack", pollId, track, function(error, result){
+    Meteor.call("addVoteToTrack", this.props.params.pollId, track, function(error, result){
       if(!error){
-        return result
+        console.log("Thanks for your game-changing vote, subhuman.")
+        currentVoted = JSON.parse(localStorage.getItem("pollifierVotedFor")) || {}
+        currentVoted[this.props.params.pollId] = track.spotifyId
+        localStorage.setItem("pollifierVotedFor", JSON.stringify(currentVoted))
+        this.setState({voted: track.spotifyId})
       }
-    })
+    }.bind(this))
   }
 }
