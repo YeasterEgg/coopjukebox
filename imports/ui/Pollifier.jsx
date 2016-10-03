@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
-import TrackList from './TrackList.jsx'
 
 request = require('request')
 querystring = require('querystring')
@@ -20,7 +19,7 @@ export default class Pollifier extends Component {
       loggedUser: false,
       playlistPresent: false,
       currentUser: null,
-      trackList: []
+      trackList: [],
     }
   }
 
@@ -78,7 +77,7 @@ export default class Pollifier extends Component {
   renderPlaylist(){
     if(this.state.playlistPresent){
       return(
-        <div>{this.renderPoll()}</div>
+        <div>{this.renderPlaylistLink()}</div>
       )
     }else{
       return(
@@ -90,7 +89,7 @@ export default class Pollifier extends Component {
     }
   }
 
-  renderPoll(){
+  renderPlaylistLink(){
     pollUrl = "http://localhost:3000/pl/" + this.state.currentUser.pollId
     return(
       <div className="homepage--poll_url">
@@ -99,26 +98,6 @@ export default class Pollifier extends Component {
       </div>
     )
   }
-
-  // renderSearchForm(){
-  //   return(
-  //     <div className="home--search_form">
-  //       <input name="track_search" id="track_search" type="text" size="20" maxLength="50" onChange={this.searchTrack.bind(this)}/>
-  //       <button type="submit">Search for this Track!</button>
-  //       <div className="home--search_results">
-  //         {this.renderTrackList()}
-  //       </div>
-  //     </div>
-  //   )
-  // }
-
-  // renderTrackList(trackList){
-  //   return (
-  //     <TrackList tracks={this.state.trackList} addTrack={this.addTrack.bind(this)} />
-  //   )
-  // }
-
-  // API Methods
 
   getAuth(){
     sessionId = crypto.randomBytes(64).toString('base64')
@@ -146,37 +125,6 @@ export default class Pollifier extends Component {
       this.setState({playlistPresent: true})
     }.bind(this))
   }
-
-  // searchTrack(){
-  //   params = {
-  //     q: document.getElementById('track_search').value,
-  //     type: "track"
-  //   }
-  //   url = "https://api.spotify.com/v1/search?" + querystring.stringify(params)
-  //   xhr = new XMLHttpRequest()
-  //   xhr.open('GET', url, true)
-  //   xhr.onload = function (event){
-  //     if (xhr.readyState === 4 && xhr.status === 200) {
-  //       trackList = JSON.parse(xhr.responseText).tracks.items
-  //       this.setState({trackList: trackList})
-  //     }
-  //   }.bind(this)
-  //   xhr.send(null)
-  // }
-
-  // addTrack(track){
-  //   userId = this.state.currentUser.spotifyId
-  //   playlistId = this.state.currentUser.playlistSpotifyId
-  //   url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
-  //   trackUri = track.uri
-  //   token = this.state.currentUser.token.accessToken
-  //   options = {
-  //     uris: [track.uri]
-  //   }
-  //   Meteor.call("addTrackToPlaylist", url, token, options, userId, function(result){
-  //   })
-  // }
-
 }
 
 Pollifier.propTypes = {

@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
+import TrackSearch from './TrackSearch.jsx'
 import TrackList from './TrackList.jsx'
 
 export default class Voter extends Component {
@@ -10,8 +11,8 @@ export default class Voter extends Component {
   constructor(props){
     super(props)
     this.state = {
-      trackList: [],
-      pollId: false
+      pollId: false,
+      trackSearch: []
     }
   }
 
@@ -30,6 +31,7 @@ export default class Voter extends Component {
     Meteor.call("userFromPollId", pollId, function(error, result){
       if(!error){
         this.setState({pollId: pollId})
+        console.log(result)
       }
     }.bind(this))
   }
@@ -46,19 +48,30 @@ export default class Voter extends Component {
 
   renderPage(){
     return (
-      <div className="home--search_form">
-        <input name="track_search" id="track_search" type="text" size="20" maxLength="50" onChange={this.searchTrack.bind(this)}/>
-        <button type="submit">Search for this Track!</button>
-        <div className="home--search_results">
-          {this.renderTrackList(this.state.tracklist)}
+      <div>
+        <div className="home--search_form">
+          <input name="track_search" id="track_search" type="text" size="20" maxLength="50" onChange={this.searchTrack.bind(this)}/>
+          <button type="submit">Search for this Track!</button>
+          <div className="home--search_results">
+            {this.renderTrackSearch(this.state.trackSearch)}
+          </div>
+        </div>
+        <div className="home--track_list">
+          {this.renderTrackList(this.props.trackList)}
         </div>
       </div>
     )
   }
 
-  renderTrackList(trackList){
+  renderTrackList(){
+    return(
+      <TrackList pollId={this.state.pollId} />
+    )
+  }
+
+  renderTrackSearch(trackSearch){
     return (
-      <TrackList tracks={this.state.trackList} addTrack={this.addTrack.bind(this)} />
+      <TrackSearch tracks={this.state.trackSearch} addTrackToPoll={this.addTrackToPoll.bind(this)} />
     )
   }
 
@@ -73,8 +86,8 @@ export default class Voter extends Component {
       xhr.open('GET', url, true)
       xhr.onload = function (event){
         if (xhr.readyState === 4 && xhr.status === 200) {
-          trackList = JSON.parse(xhr.responseText).tracks.items
-          this.setState({trackList: trackList})
+          trackSearch = JSON.parse(xhr.responseText).tracks.items
+          this.setState({trackSearch: trackSearch})
         }
       }.bind(this)
       xhr.send(null)
@@ -84,10 +97,16 @@ export default class Voter extends Component {
   addTrack(track){
     pollId = this.state.pollId
     trackUri = track.uri
-    console.log(pollId)
-    console.log(trackUri)
     Meteor.call("addTrackToPlaylist", pollId, trackUri, function(result){
-      console.log(result)
+    })
+  }
+
+  addTrackToPoll(track){
+    pollId = this.state.pollId
+    poll = Meteor.call("addTrackToPoll", pollId, track, function(error, result){
+      if(!error){
+        console.log(result)
+      }
     })
   }
 }

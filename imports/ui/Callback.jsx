@@ -10,7 +10,6 @@ export default class Voter extends Component {
       Meteor.call("createUser", queryParams["code"], queryParams["state"])
       window.location.replace("http://localhost:3000")
     }
-
   }
 
   render(){

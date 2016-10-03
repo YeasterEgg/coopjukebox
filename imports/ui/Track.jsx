@@ -15,11 +15,13 @@ export default class Track extends Component {
       seconds = secondsInt
     }
     return(
-      <div className="homepage--track" onClick={function(){this.props.addTrack(track)}.bind(this)} >
+      // <div className="homepage--track" onClick={function(){this.props.addTrackToPoll(track)}.bind(this)} >
+      <div className="homepage--track" onClick={function(){this.props.addTrackToPoll(track)}.bind(this)} >
         <span className="homepage--track_artist">{artist}</span>
         <span> - </span>
         <span className="homepage--track_title">{track.name}</span>
         <span className="homepage--track_length">{`(${minutes}:${seconds})`}</span>
+        <span className="homepage--track_votes">{"Votes: " + track.votes}</span>
       </div>
     )
   }
@@ -28,5 +30,5 @@ export default class Track extends Component {
 
 Track.propTypes = {
   track: PropTypes.object.isRequired,
-  addTrack: PropTypes.func.isRequired
+  addTrackToPoll: PropTypes.func.isRequired
 }

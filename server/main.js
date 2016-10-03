@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { LoggedUsers } from '../imports/api/loggedUsers.js'
+import { Polls } from '../imports/api/polls.js'
 const crypto = require('crypto')
 
 Meteor.startup(() => {
@@ -34,7 +35,7 @@ Meteor.methods({
     userHeaders = { 'Authorization': 'Bearer ' + getToken.body.access_token }
     getUserData = getApiWrapper(userUrl, userHeaders)
 
-    // // Finally stores everything in a new User, with a nested token object
+    // Finally stores everything in a new User, with a nested token object
     LoggedUsers.insert({
       name: getUserData.body.display_name,
       email: getUserData.body.email,
@@ -62,6 +63,19 @@ Meteor.methods({
     result = postApiWrapper(url, headers, form)
     pollId = crypto.randomBytes(8).toString('hex')
     LoggedUsers.update({_id: userId}, {$set: {playlistName: object.name, playlistSpotifyId: result.body.id, pollId: pollId }})
+
+    // As of now, it just creates a Poll at the same time
+
+    pollId = LoggedUsers.findOne({_id: userId}).pollId
+    Polls.insert({
+      playlist: object.name,
+      pollId: pollId,
+      userId: userId,
+      possibleChoices: [],
+      chosenTracks: [],
+      maxChoices: 20,
+      playlistLength: 10,
+    })
   },
 
   "addTrackToPlaylist": function(pollId, trackUri){
@@ -78,6 +92,16 @@ Meteor.methods({
       // {error: { status: 401, message: 'The access token expired' }}
       updateToken(user._id)
       Meteor.call('addTrackToPlaylist', pollId, trackUri)
+    }
+  },
+
+  "addTrackToPoll": function(pollId, track){
+    poll = Polls.findOne({pollId: pollId})
+    if(!poll) return null
+    if(poll.maxChoices > poll.possibleChoices.length){
+      newTrack = track
+      newTrack['votes'] = 0
+      Polls.update({pollId: pollId}, {$addToSet: {possibleChoices: newTrack}})
     }
   },
 

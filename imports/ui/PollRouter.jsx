@@ -4,6 +4,7 @@ import { browserHistory, Router, Route, Link } from 'react-router'
 import Voter from './Voter.jsx'
 import Pollifier from './Pollifier.jsx'
 import Callback from './Callback.jsx'
+import PageNotFound from './PageNotFound.jsx'
 
 export default class PollRouter extends Component {
   render(){
@@ -12,6 +13,7 @@ export default class PollRouter extends Component {
         <Route path="/" component={Pollifier} />
         <Route path="/pl/:pollId" component={Voter} />
         <Route path="/callback" component={Callback} />
+        <Route path="/*" component={PageNotFound} />
       </Router>
     )
   }

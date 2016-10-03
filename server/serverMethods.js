@@ -25,14 +25,12 @@ getTokenFromUser = function(userId){
 updateToken = function(userId){
   user = LoggedUsers.findOne({_id: userId})
   if(!user){
-    console.log('no user')
     return null
   }
   token = user.token
   expiringDate = new Date(token.validationStart.getTime() + token.expiresIn * 1000)
   now = new Date
   if(expiringDate > now){
-    console.log('token valid')
     return null
   }
   url = config.tokenUrl
