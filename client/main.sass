@@ -12,7 +12,7 @@ body
   margin: 0
   font-size: 14px
 
-/* Creator */
+// Creator
 
 .songlist_creator--container
   position: relative
@@ -25,7 +25,7 @@ body
   justify-content: center
   padding-top: 100px
 
-/* Tracklist */
+// Tracklist
 
 .tracklist--tracklist_container
   width: 100%
@@ -59,7 +59,16 @@ body
 
     .tracklist--track_votes
 
-/* Loader */
+.songlist_creator--track_added_notice
+  position: absolute
+  left: 50%
+  transform: translateX(-50%)
+  padding: 18px
+  border: 2px solid black
+  border-radius: 14px
+  font-size: 1.4em
+
+// Loader
 
 .loader--dots
   color: #fff
@@ -99,3 +108,19 @@ body
   font-weight: bold
   font-size: 7vh
   opacity: 0.8
+
+// React Animations
+
+.fadeInFadeOut-enter
+  opacity: 0.01
+  transition: opacity 0.5s ease-in
+
+.fadeInFadeOut-enter.fadeInFadeOut-enter-active
+  opacity: 1
+
+.fadeInFadeOut-leave
+  opacity: 1
+  transition: opacity 0.5s ease-in
+
+.fadeInFadeOut-leave.fadeInFadeOut-leave-active
+  opacity: 0.01

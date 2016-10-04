@@ -45,7 +45,7 @@ Meteor.methods({
       playlistName: "",
       playlistLength: 0,
       playlistSpotifyId: "",
-      songlistId: "",
+      songlistRndmId: "",
       token: {
         accessToken: getToken.body.access_token,
         tokenType: getToken.body.token_type,
@@ -90,8 +90,8 @@ Meteor.methods({
     return songlistRndmId
   },
 
-  "addTrackToPlaylist": function(songlistId, trackUri){
-    user = LoggedUsers.findOne({songlistId: songlistId})
+  "addTrackToPlaylist": function(songlistRndmId, trackUri){
+    user = LoggedUsers.findOne({songlistRndmId: songlistRndmId})
     userId = user.spotifyId
     playlistId = user.playlistSpotifyId
     url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
@@ -103,19 +103,16 @@ Meteor.methods({
     if(result.body.error && result.body.error.status == 401){
       // {error: { status: 401, message: 'The access token expired' }}
       updateToken(user._id)
-      Meteor.call('addTrackToPlaylist', songlistId, trackUri)
+      Meteor.call('addTrackToPlaylist', songlistRndmId, trackUri)
     }
   },
 
   "addTrackToSonglist": function(songlistId, track){
     songlist = Songlists.findOne({_id: songlistId})
     if(!songlist) return null
-    if(songlist.maxChoices > Object.keys(songlist.possibleChoices).length){
-      newTrack = cf.getTrackValues(track)
-      newTrack.votes = 0
-      Songlists.update({songlistId: songlistId}, {$set: {['possibleChoices.spo_'+newTrack.spotifyId]: newTrack}})
-      return true
-    }
+    track.votes = 0
+    Songlists.update({_id: songlistId}, {$set: {['possibleChoices.spo_'+track.spotifyId]: track}})
+    return true
   },
 
   "addVoteToTrack": function(songlistId, track){

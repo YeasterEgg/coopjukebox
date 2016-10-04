@@ -25,9 +25,11 @@ export default class SonglistCreator extends Component {
     Meteor.call("loggedUsers.fromSessionId", localStorage.sessionId, function(error, loggedUserResult){
       if(loggedUserResult.logged){
         this.setState({userId: loggedUserResult.userId})
-        if(loggedUserResult.songlistId){
-          Meteor.subscribe("songlistFromSonglistId", loggedUserResult.songlistId,{
+        if(loggedUserResult.songlistRndmId){
+          console.log(loggedUserResult)
+          Meteor.subscribe("songlistFromSonglistRndmId", loggedUserResult.songlistRndmId,{
             onReady: function(){
+              console.log(Songlists.find().fetch())
               this.setState({songlist: Songlists.find().fetch()[0]})
             }.bind(this)
           })

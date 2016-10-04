@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import TrackSearch from './TrackSearch.jsx'
 import Waiter from '../common/Waiter.jsx'
 import TrackList from '../common/TrackList.jsx'
+const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 export default class Chooser extends Component {
 
@@ -15,24 +16,48 @@ export default class Chooser extends Component {
   }
 
   render(){
+    var tracklistComponent
     return (
-      <div className="songlist_creator--search_container">
-        {this.renderLastAddedTrackNotice()}
-        <form onSubmit={this.searchTrack.bind(this)} className="songlist_creator--search_form" >
-          <input name="track_search" id="track_search" type="text" size="20" maxLength="50"/>
-          <button type="submit">Search!</button>
-        </form>
-        <div className="songlist_creator--search_results">
-          <TrackList tracks={this.state.searchResult} clickOnTrackAction={this.addTrackToSonglist.bind(this)} />
+      <div>
+        <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionAppear={true} transitionAppearTimeout={500}>
+          {this.renderLastAddedTrackNotice()}
+        </ReactCSSTransitionGroup>
+        <div className="songlist_creator--playlist_link">
+          <a href={"http://localhost:3000/sl/" + this.props.songlist.songlistRndmId}> {"http://localhost:3000/" + this.props.songlist.songlistRndmId} </a>
+        </div>
+        <div className="songlist_creator--search_container">
+          <form onSubmit={this.searchTrack.bind(this)} className="songlist_creator--search_form" >
+            <input name="track_search" id="track_search" type="text" size="20" maxLength="50"/>
+            <button type="submit">Search!</button>
+          </form>
+          <div className="songlist_creator--search_results">
+            {this.renderTracklistComponent()}
+          </div>
         </div>
       </div>
     )
   }
 
+  renderTracklistComponent(){
+    if(this.state.searchResult.length > 0){
+      tracklistComponent = <TrackList tracks={this.state.searchResult} clickOnTrackAction={this.addTrackToSonglist.bind(this)} />
+    }else{
+      tracklistComponent = null
+    }
+    return(
+      <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionAppear={true} transitionAppearTimeout={500}>
+        {tracklistComponent}
+      </ReactCSSTransitionGroup>
+    )
+  }
+
   renderLastAddedTrackNotice(){
     if(this.state.lastAddedTrack){
+      setTimeout(function(){
+        this.setState({lastAddedTrack: false})
+      }.bind(this), 3000)
       return(
-        <div className="songlist_creator--track_added_notice">
+        <div className="songlist_creator--track_added_notice button-success">
           {"Added " + this.state.lastAddedTrack.name}!
         </div>
       )

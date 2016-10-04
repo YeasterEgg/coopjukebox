@@ -12,7 +12,7 @@ Meteor.methods({
   'loggedUsers.fromSessionId': function(sessionId){
       currentUser = LoggedUsers.findOne({sessionId: sessionId})
       if(currentUser){
-        return {logged: true, userId: currentUser._id, songlistId: currentUser.songlistId}
+        return {logged: true, userId: currentUser._id, songlistRndmId: currentUser.songlistRndmId}
       }else{
         return {logged: false}
       }

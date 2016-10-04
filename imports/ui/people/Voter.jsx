@@ -15,7 +15,7 @@ export default class Voter extends Component {
   }
 
   componentWillMount(){
-    Meteor.call("userFromSonglistId", this.props.params.songlistId, function(error, result){
+    Meteor.call("userFromSonglistRndmId", this.props.params.songlistRndmId, function(error, result){
       if(!error){
         this.setState({songlistExists: true})
       }
@@ -23,9 +23,9 @@ export default class Voter extends Component {
 
     songlistsVoted = JSON.parse(localStorage.getItem("songlistifierVotedFor"))
     if(!songlistsVoted){return null}
-    if(songlistsVoted[this.props.params.songlistId]){
+    if(songlistsVoted[this.props.params.songlistRndmId]){
       console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
-      this.setState({voted: songlistsVoted[this.props.params.songlistId]})
+      this.setState({voted: songlistsVoted[this.props.params.songlistRndmId]})
     }
   }
 
@@ -58,14 +58,25 @@ export default class Voter extends Component {
   }
 
   addVoteToTrack(track){
-    Meteor.call("addVoteToTrack", this.props.params.songlistId, track, function(error, result){
+    Meteor.call("addVoteToTrack", this.props.params.songlistRndmId, track, function(error, result){
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
         currentVoted = JSON.parse(localStorage.getItem("songlistifierVotedFor")) || {}
-        currentVoted[this.props.params.songlistId] = track.spotifyId
+        currentVoted[this.props.params.songlistRndmId] = track.spotifyId
         localStorage.setItem("songlistifierVotedFor", JSON.stringify(currentVoted))
         this.setState({voted: track.spotifyId})
       }
     }.bind(this))
   }
 }
+
+export default createContainer((props) => {
+  const spotifyRndmId
+  const usersSubscription = Meteor.subscribe('loggedUsers')
+
+  return {
+    users: LoggedUsers.find().fetch(),
+    subscription: usersSubscription.ready()
+  }
+}, SonglistCreator)
+
