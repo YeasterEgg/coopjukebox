@@ -59,28 +59,35 @@ Meteor.methods({
   },
 
   "createPlaylist": function(options, userId){
-    updateToken(userId)
-    accessToken = LoggedUsers.findOne({_id: userId}).token.accessToken
-    userSpotifyId = LoggedUsers.findOne({_id: userId}).spotifyId
+    user = LoggedUsers.findOne({_id: userId})
+    if(!user){return false}
+    accessToken = user.token.accessToken
+    userSpotifyId = user.spotifyId
     url = config.playlistUrl(userSpotifyId)
     headers = {'Authorization': 'Bearer ' + accessToken },
     form = JSON.stringify(_.pick(options, ['name', 'public']))
     result = postApiWrapper(url, headers, form)
-    songlistId = crypto.randomBytes(8).toString('hex')
-    LoggedUsers.update({_id: userId}, {$set: {playlistName: options.name, playlistLength: options.length, playlistSpotifyId: result.body.id, songlistId: songlistId }})
+    if(result.body.error && result.body.error.status == 401){
+      // {error: { status: 401, message: 'The access token expired' }}
+      updateToken(user._id)
+      Meteor.call('createPlaylist', options, userId)
+    }
+    songlistRndmId = crypto.randomBytes(8).toString('hex')
 
-    // As of now, it just creates a songlist at the same time
+    LoggedUsers.update({_id: userId}, {$set: {playlistName: options.name,
+                                              playlistLength: options.length,
+                                              playlistSpotifyId: result.body.id,
+                                              songlistRndmId: songlistRndmId }})
 
-    songlistId = LoggedUsers.findOne({_id: userId}).songlistId
     Songlists.insert({
-      playlist: object.name,
-      songlistId: songlistId,
+      playlist: options.name,
+      songlistRndmId: songlistRndmId,
       userId: userId,
       possibleChoices: {},
-      chosenTracks: {},
-      maxChoices: 20,
-      playlistLength: 10,
+      playlistLength: options.length,
+      poolSize: 10,
     })
+    return songlistRndmId
   },
 
   "addTrackToPlaylist": function(songlistId, trackUri){
@@ -101,12 +108,13 @@ Meteor.methods({
   },
 
   "addTrackToSonglist": function(songlistId, track){
-    songlist = Songlists.findOne({songlistId: songlistId})
+    songlist = Songlists.findOne({_id: songlistId})
     if(!songlist) return null
     if(songlist.maxChoices > Object.keys(songlist.possibleChoices).length){
-      newTrack = getTrackValues(track)
+      newTrack = cf.getTrackValues(track)
       newTrack.votes = 0
       Songlists.update({songlistId: songlistId}, {$set: {['possibleChoices.spo_'+newTrack.spotifyId]: newTrack}})
+      return true
     }
   },
 

@@ -13,20 +13,30 @@ export default class Track extends Component {
       seconds = secondsInt
     }
     return(
-      // <div className="homepage--track" onClick={function(){this.props.addTrackToPoll(track)}.bind(this)} >
-      <div className="track--cell" onClick={function(){this.props.clickOnTrack(this.props.track)}.bind(this)} >
-        <span className="track--artist">{this.props.track.artist}</span>
-        <span> - </span>
-        <span className="track--title">{this.props.track.name}</span>
-        <span className="track--length">{`(${minutes}:${seconds})`}</span>
-        <span className="track--votes">{"Votes: " + this.props.track.votes}</span>
+      <div className="tracklist--track_cell" onClick={function(){this.props.clickOnTrackAction(this.props.track)}.bind(this)} >
+        <div className="tracklist--track_title">{this.props.track.name}</div>
+        <div className="tracklist--track_info">
+          {this.renderVotes()}
+          <div className="tracklist--track_duration">{minutes + ":" + seconds}</div>
+          <div className="tracklist--track_artist">{this.props.track.artist}</div>
+        </div>
       </div>
     )
+  }
+
+  renderVotes(){
+    if(this.props.track.votes){
+      return(
+        <div className="tracklist--track_votes">{"Votes: " + this.props.track.votes}</div>
+      )
+    }else{
+      return null
+    }
   }
 
 }
 
 Track.propTypes = {
   track: PropTypes.object.isRequired,
-  clickOnTrack: PropTypes.func.isRequired
+  clickOnTrackAction: PropTypes.func.isRequired
 }

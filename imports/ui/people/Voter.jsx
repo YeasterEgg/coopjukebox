@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
-import TrackList from './TrackList.jsx'
-import Waiter from './Waiter.jsx'
+import TrackList from '../common/TrackList.jsx'
+import Waiter from '../common/Waiter.jsx'
 
 export default class Voter extends Component {
 
@@ -10,27 +10,27 @@ export default class Voter extends Component {
     super(props)
     this.state = {
       voted: false,
-      pollExists: false
+      songlistExists: false
     }
   }
 
   componentWillMount(){
-    Meteor.call("userFromPollId", this.props.params.pollId, function(error, result){
+    Meteor.call("userFromSonglistId", this.props.params.songlistId, function(error, result){
       if(!error){
-        this.setState({pollExists: true})
+        this.setState({songlistExists: true})
       }
     }.bind(this))
 
-    pollsVoted = JSON.parse(localStorage.getItem("pollifierVotedFor"))
-    if(!pollsVoted){return null}
-    if(pollsVoted[this.props.params.pollId]){
+    songlistsVoted = JSON.parse(localStorage.getItem("songlistifierVotedFor"))
+    if(!songlistsVoted){return null}
+    if(songlistsVoted[this.props.params.songlistId]){
       console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
-      this.setState({voted: pollsVoted[this.props.params.pollId]})
+      this.setState({voted: songlistsVoted[this.props.params.songlistId]})
     }
   }
 
   render(){
-    if(this.state.pollExists){
+    if(this.state.songlistExists){
       return(
         <div>{this.renderPage()}</div>
       )
@@ -52,18 +52,18 @@ export default class Voter extends Component {
       )
     }else{
       return (
-        <TrackList pollId={this.props.params.pollId} addVoteToTrack={this.addVoteToTrack.bind(this)}/>
+        <TrackList tracks={[]} clickOnTrackAction={this.addVoteToTrack.bind(this)}/>
       )
     }
   }
 
   addVoteToTrack(track){
-    Meteor.call("addVoteToTrack", this.props.params.pollId, track, function(error, result){
+    Meteor.call("addVoteToTrack", this.props.params.songlistId, track, function(error, result){
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
-        currentVoted = JSON.parse(localStorage.getItem("pollifierVotedFor")) || {}
-        currentVoted[this.props.params.pollId] = track.spotifyId
-        localStorage.setItem("pollifierVotedFor", JSON.stringify(currentVoted))
+        currentVoted = JSON.parse(localStorage.getItem("songlistifierVotedFor")) || {}
+        currentVoted[this.props.params.songlistId] = track.spotifyId
+        localStorage.setItem("songlistifierVotedFor", JSON.stringify(currentVoted))
         this.setState({voted: track.spotifyId})
       }
     }.bind(this))

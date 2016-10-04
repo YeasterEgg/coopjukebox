@@ -18,4 +18,5 @@ module.exports = {
   authUrl: authUrl,
   tokenUrl: tokenUrl,
   userUrl: userUrl,
+  playlistUrl: playlistUrl
 }

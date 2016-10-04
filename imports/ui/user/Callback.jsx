@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import Waiter from './Waiter.jsx'
+import Waiter from '../common/Waiter.jsx'
 
 export default class Voter extends Component {
 

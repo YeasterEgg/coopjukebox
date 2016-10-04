@@ -1,56 +1,48 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import TrackSearch from './TrackSearch.jsx'
-import Waiter from './Waiter.jsx'
+import Waiter from '../common/Waiter.jsx'
+import TrackList from '../common/TrackList.jsx'
 
 export default class Chooser extends Component {
 
   constructor(props){
     super(props)
     this.state = {
-      pollId: false,
-      trackSearch: []
+      searchResult: [],
+      lastAddedTrack: false
     }
   }
 
   render(){
-    if(this.state.pollId){
-      return(<div className="homepage--father_container">{this.renderPage()}</div>)
-    }else{
-      return(<div className="homepage--father_container"><Waiter /></div>)
-    }
-  }
-
-  componentWillMount(){
-    pollId = this.props.params.pollId
-    Meteor.call("userFromPollId", pollId, function(error, result){
-      if(!error){
-        this.setState({pollId: pollId})
-      }
-    }.bind(this))
-  }
-
-  renderPage(){
     return (
-      <div>
-        <div className="home--search_form">
-          <input name="track_search" id="track_search" type="text" size="20" maxLength="50" onChange={this.searchTrack.bind(this)}/>
-          <div className="home--search_results">
-            {this.renderTrackSearch(this.state.trackSearch)}
-          </div>
+      <div className="songlist_creator--search_container">
+        {this.renderLastAddedTrackNotice()}
+        <form onSubmit={this.searchTrack.bind(this)} className="songlist_creator--search_form" >
+          <input name="track_search" id="track_search" type="text" size="20" maxLength="50"/>
+          <button type="submit">Search!</button>
+        </form>
+        <div className="songlist_creator--search_results">
+          <TrackList tracks={this.state.searchResult} clickOnTrackAction={this.addTrackToSonglist.bind(this)} />
         </div>
-        {this.renderTrackList(this.props.trackList)}
       </div>
     )
   }
 
-  renderTrackSearch(trackSearch){
-    return (
-      <TrackSearch tracks={this.state.trackSearch} addTrackToPoll={this.addTrackToPoll.bind(this)} />
-    )
+  renderLastAddedTrackNotice(){
+    if(this.state.lastAddedTrack){
+      return(
+        <div className="songlist_creator--track_added_notice">
+          {"Added " + this.state.lastAddedTrack.name}!
+        </div>
+      )
+    }else{
+      return null
+    }
   }
 
-  searchTrack(){
+  searchTrack(event){
+    event.preventDefault()
     if(document.getElementById('track_search').value.length > 3){
       params = {
         q: document.getElementById('track_search').value,
@@ -61,28 +53,29 @@ export default class Chooser extends Component {
       xhr.open('GET', url, true)
       xhr.onload = function (event){
         if (xhr.readyState === 4 && xhr.status === 200) {
-          trackSearch = JSON.parse(xhr.responseText).tracks.items
-          this.setState({trackSearch: trackSearch})
+          searchResult = JSON.parse(xhr.responseText).tracks.items
+          this.setState({searchResult: searchResult})
         }
       }.bind(this)
       xhr.send(null)
     }
   }
 
-  addTrackToPoll(track){
-    pollId = this.state.pollId
-    Meteor.call("addTrackToPoll", pollId, track, function(error, result){
-      if(!error){
-        return result
+  addTrackToSonglist(track){
+    songlistId = this.props.songlist._id
+    console.log(track)
+    console.log(songlistId)
+    this.setState({searchResult: [], lastAddedTrack: track})
+    Meteor.call("addTrackToSonglist", songlistId, track, function(error, result){
+      if(!error && result){
+        this.setState({searchResult: [], lastAddedTrack: track})
       }
-    })
+    }.bind(this))
   }
 
-  addVoteToTrack(track){
-    Meteor.call("addVoteToTrack", pollId, track, function(error, result){
-      if(!error){
-        return result
-      }
-    })
-  }
 }
+
+Chooser.propTypes = {
+  songlist: PropTypes.object.isRequired,
+}
+
