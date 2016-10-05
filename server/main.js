@@ -86,7 +86,7 @@ Meteor.methods({
       userId: userId,
       possibleChoices: {},
       playlistLength: options.length,
-      poolSize: 10,
+      poolSize: 5,
       startedAt: "",
       pollDuration: ""
     })
@@ -145,22 +145,42 @@ Meteor.methods({
       possibleChoices: possibleChoices,
       startedAt: new Date,
       ended: false,
-      winner: ""
+      winner: "",
+      pollsLeft: songlist.playlistLength
     })
-    Meteor.setTimeout(function(){Meteor.call("endPoll", songlist.songlistRndmId)}, 10000)
+    Meteor.setTimeout(function(){Meteor.call("endPoll", songlist.songlistRndmId)}, 60000 * songlist.pollDuration)
     return (possibleChoices)
   },
 
   "endPoll": function(songlistRndmId){
-    console.log('fine!')
-    poll = Songlists.findOne({songlistRndmId: songlistRndmId})
+    poll = Polls.findOne({songlistRndmId: songlistRndmId})
     if(!poll) return false
     tracks = Object.values(poll.possibleChoices)
     orderedTracks = _.sortBy(tracks, function(track){
-      track.votes
+      return track.votes
     })
-    Polls.update({songlistRndmId: songlistRndmId}, {ended: true, winner: orderedTracks.slice(-1)[0]})
-    console.log(orderedTracks)
+    winner = orderedTracks.slice(-1)[0]
+    winnerUri = "spotify:track:" + winner.spotifyId
+    Meteor.call('addTrackToPlaylist', songlistRndmId, winnerUri)
+    Polls.update({songlistRndmId: songlistRndmId}, {ended: true, winner: winner})
+    if(poll.pollsLeft > 0){
+      songlist = Songlists.findOne({songlistRndmId: songlistRndmId})
+      nRandomSongs = _.sample(songlist.possibleChoices, songlist.poolSize)
+      possibleChoices = {}
+      _.map(nRandomSongs, function(song){
+        song.votes = 0;
+        possibleChoices['spo_'+song.spotifyId] = song
+      })
+      Polls.insert({
+        songlistRndmId: poll.songlistRndmId,
+        possibleChoices: poll.possibleChoices,
+        startedAt: new Date,
+        ended: false,
+        winner: "",
+        pollsLeft: poll.pollsLeft - 1
+      })
+      Meteor.setTimeout(function(){Meteor.call("endPoll", songlist.songlistRndmId)}, 60000 * songlist.pollDuration)
+    }
   },
 
   // "updateSonglistPoll": function(songlistId){
