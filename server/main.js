@@ -119,7 +119,8 @@ Meteor.methods({
 
   "addVoteToTrack": function(songlistRndmId, track){
     songlist = Polls.findOne({songlistRndmId: songlistRndmId})
-    Polls.update({songlistRndmId: songlistRndmId}, {$inc: {['possibleChoices.spo_'+track.spotifyId+'.votes']: 1}})
+    increment = {['possibleChoices.spo_'+track.spotifyId+'.votes']: 1}
+    Polls.update({songlistRndmId: songlistRndmId}, {$inc: increment})
   },
 
   "userFromSonglistRndmId": function(songlistRndmId) {
@@ -134,17 +135,19 @@ Meteor.methods({
   "startSonglistPoll": function(songlistId){
     songlist = Songlists.findOne({_id: songlistId})
     nRandomSongs = _.sample(songlist.possibleChoices, songlist.poolSize)
-    possibleChoices = _.map(nRandomSongs, function(song){
-      song.votes = 0
+    possibleChoices = {}
+    _.map(nRandomSongs, function(song){
+      song.votes = 0;
+      possibleChoices['spo_'+song.spotifyId] = song
     })
     Polls.insert({
-      songlistRndmId: songlistRndmId,
+      songlistRndmId: songlist.songlistRndmId,
       possibleChoices: possibleChoices,
       startedAt: new Date,
       pollDuration: songlist.pollDuration
     })
-    Meteor.setTimeout(Meteor.call("endPoll", songlist.songlistRndmId), songlist.pollDuration * 60000)
-    return (new Date)
+    Meteor.setTimeout(function(){Meteor.call("endPoll", songlist.songlistRndmId)}, songlist.pollDuration * 60000)
+    return (possibleChoices)
   },
 
   "endPoll": function(songlistRndmId){
@@ -152,7 +155,7 @@ Meteor.methods({
     poll = Songlists.findOne({songlistRndmId: songlistRndmId})
     if(!poll) return false
     tracks = Object.values(poll.possibleChoices)
-    orderedTracks = _sortBy(tracks, function(track){
+    orderedTracks = _.sortBy(tracks, function(track){
       track.votes
     })
     console.log(orderedTracks)

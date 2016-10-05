@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom'
 import TrackList from '../common/TrackList.jsx'
 import Waiter from '../common/Waiter.jsx'
 import PageNotFound from '../common/PageNotFound.jsx'
-import { Songlists } from '../../api/songlists.js'
 import { Polls } from '../../api/polls.js'
 
 export default class Voter extends Component {
@@ -35,6 +34,7 @@ export default class Voter extends Component {
         <PageNotFound />
       )
     }else{
+      console.log(this.props.poll)
       return(
         <div>{this.renderPage()}</div>
       )
@@ -45,7 +45,7 @@ export default class Voter extends Component {
     tracks = Object.values(this.props.poll[0].possibleChoices)
     if(!this.state.voted){
       return (
-        <TrackList tracks={randomTracks} clickOnTrackAction={this.addVoteToTrack.bind(this)}/>
+        <TrackList tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)}/>
       )
     }else{
       src = "https://embed.spotify.com/?uri=spotify:track:" + this.state.voted
@@ -59,7 +59,7 @@ export default class Voter extends Component {
   }
 
   addVoteToTrack(track){
-    Meteor.call("addVoteToTrack", this.props.songlist[0].songlistRndmId, track, function(error, result){
+    Meteor.call("addVoteToTrack", this.props.poll[0].songlistRndmId, track, function(error, result){
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
         currentVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}

@@ -103,7 +103,7 @@ export default class Chooser extends Component {
         console.log(result)
         this.setState({pollStarted: result})
       }
-    })
+    }.bind(this))
   }
 
   importPlaylist(event){
