@@ -1,4 +1,4 @@
-# pollifier
+# Democracy-Jockey
 Polls for choosing a song in a Spotify playlist
 
 

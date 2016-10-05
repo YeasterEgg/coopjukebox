@@ -29,12 +29,11 @@ export default class Voter extends Component {
       return(
         <Waiter />
       )
-    }else if(!this.props.poll){
+    }else if(!this.props.poll[0]){
       return(
         <PageNotFound />
       )
     }else{
-      console.log(this.props.poll)
       return(
         <div>{this.renderPage()}</div>
       )

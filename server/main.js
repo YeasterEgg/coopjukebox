@@ -144,9 +144,10 @@ Meteor.methods({
       songlistRndmId: songlist.songlistRndmId,
       possibleChoices: possibleChoices,
       startedAt: new Date,
-      pollDuration: songlist.pollDuration
+      ended: false,
+      winner: ""
     })
-    Meteor.setTimeout(function(){Meteor.call("endPoll", songlist.songlistRndmId)}, songlist.pollDuration * 60000)
+    Meteor.setTimeout(function(){Meteor.call("endPoll", songlist.songlistRndmId)}, 10000)
     return (possibleChoices)
   },
 
@@ -158,6 +159,7 @@ Meteor.methods({
     orderedTracks = _.sortBy(tracks, function(track){
       track.votes
     })
+    Polls.update({songlistRndmId: songlistRndmId}, {ended: true, winner: orderedTracks.slice(-1)[0]})
     console.log(orderedTracks)
   },
 
