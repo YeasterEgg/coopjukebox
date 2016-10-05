@@ -9,6 +9,9 @@ const userUrl = "https://api.spotify.com/v1/me/"
 const playlistUrl = function(userSpotifyId){
   return ("https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists")
 }
+const playlistTracksUrl = function(userSpotifyId, playlistSpotifyId){
+  return ("https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists/" + playlistSpotifyId + "/tracks")
+}
 
 module.exports = {
   clientId: clientId,
@@ -18,5 +21,6 @@ module.exports = {
   authUrl: authUrl,
   tokenUrl: tokenUrl,
   userUrl: userUrl,
-  playlistUrl: playlistUrl
+  playlistUrl: playlistUrl,
+  playlistTracksUrl: playlistTracksUrl,
 }

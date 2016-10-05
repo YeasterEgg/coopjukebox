@@ -12,17 +12,18 @@ export default class Chooser extends Component {
     super(props)
     this.state = {
       searchResult: [],
-      lastAddedTrack: false
+      lastAddedTrack: false,
+      pollStarted: this.props.songlist.startedAt
     }
   }
 
   render(){
-    var tracklistComponent
     return (
       <div>
-        <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionAppear={true} transitionAppearTimeout={500}>
+        <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionEnterTimeout={500} transitionLeaveTimeout={500}>
           {this.renderLastAddedTrackNotice()}
         </ReactCSSTransitionGroup>
+        {this.renderStartedAt()}
         <div className="songlist_creator--playlist_link">
           <a href={"http://localhost:3000/sl/" + this.props.songlist.songlistRndmId}> {"http://localhost:3000/" + this.props.songlist.songlistRndmId} </a>
         </div>
@@ -36,6 +37,7 @@ export default class Chooser extends Component {
           </div>
         </div>
         {this.renderStartButton()}
+        {this.renderImportPlaylistButton()}
       </div>
     )
   }
@@ -47,7 +49,7 @@ export default class Chooser extends Component {
       tracklistComponent = null
     }
     return(
-      <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionAppear={true} transitionAppearTimeout={500}>
+      <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionEnterTimeout={500} transitionLeaveTimeout={500}>
         {tracklistComponent}
       </ReactCSSTransitionGroup>
     )
@@ -69,10 +71,49 @@ export default class Chooser extends Component {
   }
 
   renderStartButton(){
+    return(
+      <button type="submit" onClick={this.startVoting.bind(this)}>Start Voting!</button>
+    )
+  }
+
+  renderImportPlaylistButton(){
+    return(
+      <form className="songlist_creator--add_playlist" onSubmit={this.importPlaylist.bind(this)} >
+        <label htmlFor="playlist_id">Import playlist from ID od SpotifyUri</label>
+        <input name="playlist_id" id="playlist_id" type="text" size="20" maxLength="70"/>
+        <button type="submit">Import Playlist!</button>
+      </form>
+    )
+  }
+
+  renderStartedAt(){
+    if(this.state.pollStarted){
+      return(
+        <div className="songlist_creator--playlist_start">
+          <span>{this.props.songlist.startedAt.toLocaleString()}</span>
+        </div>
+      )
+    }
+  }
+
+  startVoting(){
     songlistId = this.props.songlist._id
     Meteor.call("startSonglistPoll", songlistId, function(error, result){
-      console.log(error)
-      console.log(result)
+      if(result){
+        console.log(result)
+        this.setState({pollStarted: result})
+      }
+    })
+  }
+
+  importPlaylist(event){
+    event.preventDefault()
+    songlistRndmId = this.props.songlist.songlistRndmId
+    playlistSpotifyId = document.getElementById('playlist_id').value.split(":").slice(-1)[0]
+    Meteor.call("importPlaylist", playlistSpotifyId, songlistRndmId, function(error, result){
+      if(!error){
+        console.log(result)
+      }
     })
   }
 
@@ -89,7 +130,11 @@ export default class Chooser extends Component {
       xhr.onload = function (event){
         if (xhr.readyState === 4 && xhr.status === 200) {
           searchResult = JSON.parse(xhr.responseText).tracks.items
-          this.setState({searchResult: searchResult})
+          tracks = _.map(searchResult, function(track){
+            return cf.getTrackValues(track)
+          })
+          console.log(tracks)
+          this.setState({searchResult: tracks})
         }
       }.bind(this)
       xhr.send(null)
@@ -98,8 +143,6 @@ export default class Chooser extends Component {
 
   addTrackToSonglist(track){
     songlistId = this.props.songlist._id
-    console.log(track)
-    console.log(songlistId)
     this.setState({searchResult: [], lastAddedTrack: track})
     Meteor.call("addTrackToSonglist", songlistId, track, function(error, result){
       if(!error && result){

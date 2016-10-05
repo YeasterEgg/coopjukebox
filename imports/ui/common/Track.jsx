@@ -13,19 +13,19 @@ export default class Track extends Component {
       seconds = secondsInt
     }
     return(
-      <div className="tracklist--track_cell" onClick={function(){this.props.clickOnTrackAction(this.props.track)}.bind(this)} >
+      <a href="#" className="tracklist--track_cell" onClick={function(event){event.preventDefault();this.props.clickOnTrackAction(this.props.track)}.bind(this)} >
         <div className="tracklist--track_title">{this.props.track.name}</div>
         <div className="tracklist--track_info">
-          {this.renderVotes()}
+          {this.renderVotes.bind(this)()}
           <div className="tracklist--track_duration">{minutes + ":" + seconds}</div>
           <div className="tracklist--track_artist">{this.props.track.artist}</div>
         </div>
-      </div>
+      </a>
     )
   }
 
   renderVotes(){
-    if(this.props.track.votes){
+    if(typeof this.props.track.votes !== 'undefined'){
       return(
         <div className="tracklist--track_votes">{"Votes: " + this.props.track.votes}</div>
       )

@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor'
 import { LoggedUsers } from '../imports/api/loggedUsers.js'
 import { Songlists } from '../imports/api/songlists.js'
+import { Polls } from '../imports/api/polls.js'
 const crypto = require('crypto')
 
 Meteor.startup(() => {
@@ -89,7 +90,7 @@ Meteor.methods({
       startedAt: "",
       pollDuration: ""
     })
-    return songlistRndmId
+    return Songlists.findOne({songlistRndmId: songlistRndmId})
   },
 
   "addTrackToPlaylist": function(songlistRndmId, trackUri){
@@ -112,14 +113,13 @@ Meteor.methods({
   "addTrackToSonglist": function(songlistId, track){
     songlist = Songlists.findOne({_id: songlistId})
     if(!songlist) return null
-    track.votes = "0"
     Songlists.update({_id: songlistId}, {$set: {['possibleChoices.spo_'+track.spotifyId]: track}})
     return true
   },
 
-  "addVoteToTrack": function(songlistId, track){
-    songlist = Songlists.findOne({_id: songlistId})
-    Songlists.update({_id: songlistId}, {$inc: {['possibleChoices.spo_'+track.spotifyId+'.votes']: 1}})
+  "addVoteToTrack": function(songlistRndmId, track){
+    songlist = Polls.findOne({songlistRndmId: songlistRndmId})
+    Polls.update({songlistRndmId: songlistRndmId}, {$inc: {['possibleChoices.spo_'+track.spotifyId+'.votes']: 1}})
   },
 
   "userFromSonglistRndmId": function(songlistRndmId) {
@@ -133,8 +133,75 @@ Meteor.methods({
 
   "startSonglistPoll": function(songlistId){
     songlist = Songlists.findOne({_id: songlistId})
-    Songlists.update({_id: songlistId}, {$set: {startedAt: new Date}})
+    nRandomSongs = _.sample(songlist.possibleChoices, songlist.poolSize)
+    possibleChoices = _.map(nRandomSongs, function(song){
+      song.votes = 0
+    })
+    Polls.insert({
+      songlistRndmId: songlistRndmId,
+      possibleChoices: possibleChoices,
+      startedAt: new Date,
+      pollDuration: songlist.pollDuration
+    })
+    Meteor.setTimeout(Meteor.call("endPoll", songlist.songlistRndmId), songlist.pollDuration * 60000)
     return (new Date)
-  }
+  },
+
+  "endPoll": function(songlistRndmId){
+    console.log('fine!')
+    poll = Songlists.findOne({songlistRndmId: songlistRndmId})
+    if(!poll) return false
+    tracks = Object.values(poll.possibleChoices)
+    orderedTracks = _sortBy(tracks, function(track){
+      track.votes
+    })
+    console.log(orderedTracks)
+  },
+
+  // "updateSonglistPoll": function(songlistId){
+  //   songlist = Songlists.findOne({_id: songlistId})
+  //   if(!songlist.startedAt){
+  //     nRandomSongs = _.sample(songlist.possibleChoices, songlist.poolSize)
+  //     possibleChoices = _.map(nRandomSongs, function(song){
+  //       song.votes = 0
+  //     })
+  //     Polls.update({
+  //       songlistRndmId: songlistRndmId,
+  //       possibleChoices: possibleChoices,
+  //       startedAt: new Date,
+  //       pollDuration: songlist.pollDuration
+  //     })
+  //     return (new Date)
+  //   }else{
+  //     return false
+  //   }
+  // },
+
+  "importPlaylist": function(playlistSpotifyId, songlistRndmId){
+    user = LoggedUsers.findOne({songlistRndmId: songlistRndmId})
+    if(!user) return false
+    url = config.playlistTracksUrl(user.spotifyId, playlistSpotifyId)
+    headers = {'Authorization': 'Bearer ' + user.token.accessToken }
+    result = getApiWrapper(url, headers)
+    if(result.body.error && result.body.error.status === 401){
+      // {error: { status: 401, message: 'The access token expired' }}
+      updateToken(user._id)
+      Meteor.call('importPlaylist', playlistSpotifyId, songlistRndmId)
+    }else if(result.body.error){
+      console.log(result.body.error)
+      return result.body.error
+    }else{
+      possibleChoices = {}
+      _.map(result.body.items, function(item){
+        parsedTrack = cf.getTrackValues(item.track)
+        parsedTrack.votes = 0
+        possibleChoices["possibleChoices.spo_" + item.track.id] = parsedTrack
+      })
+
+      console.log(possibleChoices)
+      Songlists.update({songlistRndmId: songlistRndmId}, {$set: possibleChoices})
+      return possibleChoices
+    }
+  },
 
 })

@@ -5,6 +5,7 @@ import TrackList from '../common/TrackList.jsx'
 import Waiter from '../common/Waiter.jsx'
 import PageNotFound from '../common/PageNotFound.jsx'
 import { Songlists } from '../../api/songlists.js'
+import { Polls } from '../../api/polls.js'
 
 export default class Voter extends Component {
 
@@ -16,11 +17,11 @@ export default class Voter extends Component {
   }
 
   componentWillMount(){
-    songlistsVoted = JSON.parse(localStorage.getItem("songlistVotedFor"))
-    if(!songlistsVoted){return null}
-    if(songlistsVoted[this.props.params.songlistRndmId]){
+    pollsVoted = JSON.parse(localStorage.getItem("songlistVotedFor"))
+    if(!pollsVoted){return null}
+    if(pollsVoted[this.props.poll._id]){
       console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
-      this.setState({voted: songlistsVoted[this.props.params.songlistRndmId]})
+      this.setState({voted: pollsVoted[this.props.poll._id]})
     }
   }
 
@@ -29,7 +30,7 @@ export default class Voter extends Component {
       return(
         <Waiter />
       )
-    }else if(!this.props.songlist){
+    }else if(!this.props.poll){
       return(
         <PageNotFound />
       )
@@ -41,8 +42,7 @@ export default class Voter extends Component {
   }
 
   renderPage(){
-    tracks = Object.values(this.props.songlist[0].possibleChoices)
-    randomTracks = _.sample(tracks, this.props.songlist[0].poolSize)
+    tracks = Object.values(this.props.poll[0].possibleChoices)
     if(!this.state.voted){
       return (
         <TrackList tracks={randomTracks} clickOnTrackAction={this.addVoteToTrack.bind(this)}/>
@@ -59,7 +59,7 @@ export default class Voter extends Component {
   }
 
   addVoteToTrack(track){
-    Meteor.call("addVoteToTrack", this.props.songlist[0]._id, track, function(error, result){
+    Meteor.call("addVoteToTrack", this.props.songlist[0].songlistRndmId, track, function(error, result){
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
         currentVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}
@@ -74,11 +74,11 @@ export default class Voter extends Component {
 export default createContainer((props) => {
 
   songlistRndmId = props.params.songlistRndmId
-  const songlistSubscription = Meteor.subscribe('songlistFromSonglistRndmId', songlistRndmId)
+  const pollSubscription = Meteor.subscribe('pollFromSonglistRndmId', songlistRndmId)
 
   return {
-    songlist: Songlists.find().fetch(),
-    subscription: songlistSubscription.ready()
+    poll: Polls.find().fetch(),
+    subscription: pollSubscription.ready()
   }
 }, Voter)
 
