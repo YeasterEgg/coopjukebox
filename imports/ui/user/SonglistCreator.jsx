@@ -62,9 +62,19 @@ export default class SonglistCreator extends Component {
     if(!this.state.songlist){
       return(
         <form className="songlist_creator--songlist_form" onSubmit={this.createPlaylist.bind(this)} >
-          <input name="playlist_name" id="playlist_name" type="text" size="20" maxLength="50" />
-          <input name="playlist_length" id="playlist_length" type="number" size="20" maxLength="50" />
-          <button type="submit">Crea playlist</button>
+          <div className="songlist_creator--form_part">
+            <label for="playlist_name">Playlist Name</label>
+            <input name="playlist_name" id="playlist_name" type="text" size="20" maxLength="50" />
+          </div>
+          <div className="songlist_creator--form_part">
+            <label for="playlist_length">Number of Songs</label>
+            <input name="playlist_length" id="playlist_length" type="number" size="20" maxLength="50" />
+          </div>
+          <div className="songlist_creator--form_part">
+            <label for="playlist_duration">Duration of polls</label>
+            <input name="playlist_duration" id="playlist_length" type="number" size="20" maxLength="50" />
+          </div>
+          <button type="submit">Create playlist</button>
         </form>
       )
     }else{

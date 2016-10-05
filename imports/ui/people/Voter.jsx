@@ -3,25 +3,20 @@ import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
 import TrackList from '../common/TrackList.jsx'
 import Waiter from '../common/Waiter.jsx'
+import PageNotFound from '../common/PageNotFound.jsx'
+import { Songlists } from '../../api/songlists.js'
 
 export default class Voter extends Component {
 
   constructor(props){
     super(props)
     this.state = {
-      voted: false,
-      songlistExists: false
+      voted: false
     }
   }
 
   componentWillMount(){
-    Meteor.call("userFromSonglistRndmId", this.props.params.songlistRndmId, function(error, result){
-      if(!error){
-        this.setState({songlistExists: true})
-      }
-    }.bind(this))
-
-    songlistsVoted = JSON.parse(localStorage.getItem("songlistifierVotedFor"))
+    songlistsVoted = JSON.parse(localStorage.getItem("songlistVotedFor"))
     if(!songlistsVoted){return null}
     if(songlistsVoted[this.props.params.songlistRndmId]){
       console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
@@ -30,40 +25,46 @@ export default class Voter extends Component {
   }
 
   render(){
-    if(this.state.songlistExists){
+    if(!this.props.subscription){
       return(
-        <div>{this.renderPage()}</div>
+        <Waiter />
+      )
+    }else if(!this.props.songlist){
+      return(
+        <PageNotFound />
       )
     }else{
       return(
-        <Waiter />
+        <div>{this.renderPage()}</div>
       )
     }
   }
 
   renderPage(){
-    if(this.state.voted){
+    tracks = Object.values(this.props.songlist[0].possibleChoices)
+    randomTracks = _.sample(tracks, this.props.songlist[0].poolSize)
+    if(!this.state.voted){
+      return (
+        <TrackList tracks={randomTracks} clickOnTrackAction={this.addVoteToTrack.bind(this)}/>
+      )
+    }else{
       src = "https://embed.spotify.com/?uri=spotify:track:" + this.state.voted
       return(
         <div className="voter--voted_container">
           <div className="voter--voted_title">Now, listen to what you have chosen!</div>
-          <iframe src={src} width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+          <iframe src={src} width="300" height="380" frameBorder="0" allowTransparency="true"></iframe>
         </div>
-      )
-    }else{
-      return (
-        <TrackList tracks={[]} clickOnTrackAction={this.addVoteToTrack.bind(this)}/>
       )
     }
   }
 
   addVoteToTrack(track){
-    Meteor.call("addVoteToTrack", this.props.params.songlistRndmId, track, function(error, result){
+    Meteor.call("addVoteToTrack", this.props.songlist[0]._id, track, function(error, result){
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
-        currentVoted = JSON.parse(localStorage.getItem("songlistifierVotedFor")) || {}
+        currentVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}
         currentVoted[this.props.params.songlistRndmId] = track.spotifyId
-        localStorage.setItem("songlistifierVotedFor", JSON.stringify(currentVoted))
+        localStorage.setItem("songlistVotedFor", JSON.stringify(currentVoted))
         this.setState({voted: track.spotifyId})
       }
     }.bind(this))
@@ -71,12 +72,14 @@ export default class Voter extends Component {
 }
 
 export default createContainer((props) => {
-  const spotifyRndmId
-  const usersSubscription = Meteor.subscribe('loggedUsers')
+
+  songlistRndmId = props.params.songlistRndmId
+  const songlistSubscription = Meteor.subscribe('songlistFromSonglistRndmId', songlistRndmId)
 
   return {
-    users: LoggedUsers.find().fetch(),
-    subscription: usersSubscription.ready()
+    songlist: Songlists.find().fetch(),
+    subscription: songlistSubscription.ready()
   }
-}, SonglistCreator)
+}, Voter)
+
 

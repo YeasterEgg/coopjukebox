@@ -4,6 +4,7 @@ import TrackSearch from './TrackSearch.jsx'
 import Waiter from '../common/Waiter.jsx'
 import TrackList from '../common/TrackList.jsx'
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
+cf = require('../../lib/commonFunctions.js')
 
 export default class Chooser extends Component {
 
@@ -34,6 +35,7 @@ export default class Chooser extends Component {
             {this.renderTracklistComponent()}
           </div>
         </div>
+        {this.renderStartButton()}
       </div>
     )
   }
@@ -64,6 +66,14 @@ export default class Chooser extends Component {
     }else{
       return null
     }
+  }
+
+  renderStartButton(){
+    songlistId = this.props.songlist._id
+    Meteor.call("startSonglistPoll", songlistId, function(error, result){
+      console.log(error)
+      console.log(result)
+    })
   }
 
   searchTrack(event){

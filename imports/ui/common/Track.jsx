@@ -7,7 +7,7 @@ export default class Track extends Component {
   render(){
     minutes = Math.floor(this.props.track.duration_ms / 60000)
     secondsInt = Math.floor((this.props.track.duration_ms % 60000)/1000)
-    if(String(secondsInt).length == 1){
+    if(String(secondsInt).length === 1){
       seconds = "0" + secondsInt
     }else{
       seconds = secondsInt

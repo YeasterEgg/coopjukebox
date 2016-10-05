@@ -6,7 +6,7 @@ export default class Voter extends Component {
 
   componentWillMount(){
     queryParams = this.props.location.query
-    if(queryParams["code"] && (queryParams["state"] == localStorage.getItem("sessionId"))){
+    if(queryParams["code"] && (queryParams["state"] === localStorage.getItem("sessionId"))){
       Meteor.call("createUser", queryParams["code"], queryParams["state"])
       window.location.replace("http://localhost:3000")
     }
