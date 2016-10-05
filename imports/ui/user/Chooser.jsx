@@ -25,7 +25,7 @@ export default class Chooser extends Component {
         </ReactCSSTransitionGroup>
         {this.renderStartedAt()}
         <div className="songlist_creator--playlist_link">
-          <a href={"http://localhost:3000/sl/" + this.props.songlist.songlistRndmId}> {"http://localhost:3000/" + this.props.songlist.songlistRndmId} </a>
+          <a href={Meteor.absoluteUrl() + "sl/" + this.props.songlist.songlistRndmId}> {Meteor.absoluteUrl() + this.props.songlist.songlistRndmId} </a>
         </div>
         <div className="songlist_creator--search_container">
           <form onSubmit={this.searchTrack.bind(this)} className="songlist_creator--search_form" >
