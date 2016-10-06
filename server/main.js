@@ -35,6 +35,7 @@ Meteor.methods({
     userUrl = config.userUrl
     userHeaders = { 'Authorization': 'Bearer ' + getToken.body.access_token }
     getUserData = getApiWrapper(userUrl, userHeaders)
+    console.log(getUserData.body)
 
     // Finally stores everything in a new User, with a nested token object
     LoggedUsers.insert({
