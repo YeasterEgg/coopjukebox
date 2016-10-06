@@ -12,7 +12,7 @@ export default class Chooser extends Component {
     super(props)
     this.state = {
       searchResult: [],
-      lastAddedTrack: false,
+      positiveNotice: false,
       pollStarted: this.props.songlist.startedAt
     }
   }
@@ -21,10 +21,13 @@ export default class Chooser extends Component {
     return (
       <div>
         <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionEnterTimeout={500} transitionLeaveTimeout={500}>
-          {this.renderLastAddedTrackNotice()}
+          {this.renderPositiveNotice()}
         </ReactCSSTransitionGroup>
         {this.renderStartedAt()}
         <div className="songlist_creator--playlist_link">
+          <iframe src={"https://embed.spotify.com/?uri=spotify:user:" + this.props.songlist.userSpotifyId + ":playlist:" + this.props.songlist.playlistSpotifyId} width="300" height="80" frameBorder="0" allowTransparency="true"></iframe>
+        </div>
+        <div className="songlist_creator--songlist_link">
           <a href={Meteor.absoluteUrl() + "sl/" + this.props.songlist.songlistRndmId}> {Meteor.absoluteUrl() + this.props.songlist.songlistRndmId} </a>
         </div>
         <div className="songlist_creator--search_container">
@@ -55,15 +58,13 @@ export default class Chooser extends Component {
     )
   }
 
-  renderLastAddedTrackNotice(){
-    if(this.state.lastAddedTrack){
+  renderPositiveNotice(){
+    if(this.state.positiveNotice){
       setTimeout(function(){
-        this.setState({lastAddedTrack: false})
+        this.setState({positiveNotice: false})
       }.bind(this), 3000)
       return(
-        <div className="songlist_creator--track_added_notice button-success">
-          {"Added " + this.state.lastAddedTrack.name}!
-        </div>
+        <div className="songlist_creator--track_added_notice button-success">{this.state.positiveNotice}</div>
       )
     }else{
       return null
@@ -100,7 +101,6 @@ export default class Chooser extends Component {
     songlistId = this.props.songlist._id
     Meteor.call("startSonglistPoll", songlistId, function(error, result){
       if(result){
-        console.log(result)
         this.setState({pollStarted: result})
       }
     }.bind(this))
@@ -111,10 +111,10 @@ export default class Chooser extends Component {
     songlistRndmId = this.props.songlist.songlistRndmId
     playlistSpotifyId = document.getElementById('playlist_id').value.split(":").slice(-1)[0]
     Meteor.call("importPlaylist", playlistSpotifyId, songlistRndmId, function(error, result){
-      if(!error){
-        console.log(result)
-      }
-    })
+      tracksNo = result.items.length
+      notice = "Imported " + tracksNo + " songs from playlist!"
+      this.setState({"positiveNotice": notice})
+    }.bind(this))
   }
 
   searchTrack(event){
@@ -143,10 +143,10 @@ export default class Chooser extends Component {
 
   addTrackToSonglist(track){
     songlistId = this.props.songlist._id
-    this.setState({searchResult: [], lastAddedTrack: track})
+    this.setState({searchResult: []})
     Meteor.call("addTrackToSonglist", songlistId, track, function(error, result){
       if(!error && result){
-        this.setState({searchResult: [], lastAddedTrack: track})
+        this.setState({searchResult: [], positiveNotice: "Added " + track.name + " to Songlist!"})
       }
     }.bind(this))
   }

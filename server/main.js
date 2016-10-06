@@ -90,7 +90,9 @@ Meteor.methods({
       playlistLength: options.length,
       poolSize: 5,
       startedAt: "",
-      pollDuration: options.duration
+      pollDuration: options.duration,
+      userSpotifyId: userSpotifyId,
+      playlistSpotifyId: result.body.id
     })
     return Songlists.findOne({songlistRndmId: songlistRndmId})
   },
@@ -164,7 +166,7 @@ Meteor.methods({
     winner = orderedTracks.slice(-1)[0]
     winnerUri = "spotify:track:" + winner.spotifyId
     Meteor.call('addTrackToPlaylist', songlistRndmId, winnerUri)
-    Polls.update({songlistRndmId: songlistRndmId}, {ended: true, winner: winner})
+    Polls.update({songlistRndmId: songlistRndmId}, {$set: {ended: true, winner: winner}})
     if(poll.pollsLeft > 0){
       songlist = Songlists.findOne({songlistRndmId: songlistRndmId})
       nRandomSongs = _.sample(songlist.possibleChoices, songlist.poolSize)
@@ -173,6 +175,7 @@ Meteor.methods({
         song.votes = 0;
         possibleChoices['spo_'+song.spotifyId] = song
       })
+      console.log(possibleChoices)
       Polls.insert({
         songlistRndmId: poll.songlistRndmId,
         possibleChoices: poll.possibleChoices,
@@ -185,25 +188,6 @@ Meteor.methods({
     }
   },
 
-  // "updateSonglistPoll": function(songlistId){
-  //   songlist = Songlists.findOne({_id: songlistId})
-  //   if(!songlist.startedAt){
-  //     nRandomSongs = _.sample(songlist.possibleChoices, songlist.poolSize)
-  //     possibleChoices = _.map(nRandomSongs, function(song){
-  //       song.votes = 0
-  //     })
-  //     Polls.update({
-  //       songlistRndmId: songlistRndmId,
-  //       possibleChoices: possibleChoices,
-  //       startedAt: new Date,
-  //       pollDuration: songlist.pollDuration
-  //     })
-  //     return (new Date)
-  //   }else{
-  //     return false
-  //   }
-  // },
-
   "importPlaylist": function(playlistSpotifyId, songlistRndmId){
     user = LoggedUsers.findOne({songlistRndmId: songlistRndmId})
     if(!user) return false
@@ -215,7 +199,6 @@ Meteor.methods({
       updateToken(user._id)
       Meteor.call('importPlaylist', playlistSpotifyId, songlistRndmId)
     }else if(result.body.error){
-      console.log(result.body.error)
       return result.body.error
     }else{
       possibleChoices = {}
@@ -224,10 +207,8 @@ Meteor.methods({
         parsedTrack.votes = 0
         possibleChoices["possibleChoices.spo_" + item.track.id] = parsedTrack
       })
-
-      console.log(possibleChoices)
       Songlists.update({songlistRndmId: songlistRndmId}, {$set: possibleChoices})
-      return possibleChoices
+      return result.body
     }
   },
 
