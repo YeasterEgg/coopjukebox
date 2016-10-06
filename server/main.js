@@ -58,6 +58,7 @@ Meteor.methods({
       },
       createdAt: new Date,
     })
+    return getUserData.body
   },
 
   "createPlaylist": function(options, userId){
