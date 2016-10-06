@@ -64,15 +64,15 @@ export default class SonglistCreator extends Component {
         <form className="songlist_creator--songlist_form" onSubmit={this.createPlaylist.bind(this)} >
           <div className="songlist_creator--form_part">
             <label htmlFor="playlist_name">Playlist Name</label>
-            <input name="playlist_name" id="playlist_name" type="text" size="20" maxLength="50" />
+            <input name="playlist_name" id="playlist_name" type="text" size="20" maxLength="50" pattern="[a-zA-Z0-9- _]+"/>
           </div>
           <div className="songlist_creator--form_part">
             <label htmlFor="playlist_length">Number of Songs</label>
-            <input name="playlist_length" id="playlist_length" type="number" size="20" maxLength="50" />
+            <input name="playlist_length" id="playlist_length" type="number" size="10" maxLength="3" />
           </div>
           <div className="songlist_creator--form_part">
-            <label htmlFor="playlist_duration">Duration of polls</label>
-            <input name="playlist_duration" id="playlist_length" type="number" size="20" maxLength="50" />
+            <label htmlFor="playlist_duration">Duration of polls (m)</label>
+            <input name="playlist_duration" id="playlist_duration" type="number" size="10" maxLength="2" />
           </div>
           <button type="submit">Create playlist</button>
         </form>
@@ -94,10 +94,20 @@ export default class SonglistCreator extends Component {
 
   createPlaylist(event){
     event.preventDefault()
+    name = document.getElementById("playlist_name").value
+    length = document.getElementById("playlist_length").value
+    duration = document.getElementById("playlist_duration").value
+    if(!name || !length || !duration){
+      alert("Please complete all the fileds!")
+      return null
+    }else if(length < 1 || duration < 1){
+      alert("Please use valid choiches!")
+      return null
+    }
     options =  {
-      "name": document.getElementById("playlist_name").value,
-      "length": document.getElementById("playlist_length").value,
-      "public": true
+      "name": name,
+      "length": length,
+      "duration": duration,
     }
     Meteor.call("createPlaylist", options, this.state.userId, function(error, result){
       if(!error){

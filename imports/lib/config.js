@@ -10,7 +10,7 @@ const playlistUrl = function(userSpotifyId){
   return ("https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists")
 }
 const playlistTracksUrl = function(userSpotifyId, playlistSpotifyId){
-  return ("https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists/" + playlistSpotifyId + "/tracks")
+  return ("https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists/" + playlistSpotifyId + "/tracks?limit=100")
 }
 
 module.exports = {

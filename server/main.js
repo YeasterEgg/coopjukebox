@@ -90,7 +90,7 @@ Meteor.methods({
       playlistLength: options.length,
       poolSize: 5,
       startedAt: "",
-      pollDuration: ""
+      pollDuration: options.duration
     })
     return Songlists.findOne({songlistRndmId: songlistRndmId})
   },
