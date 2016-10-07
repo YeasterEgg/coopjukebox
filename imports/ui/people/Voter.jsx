@@ -44,7 +44,9 @@ export default class Voter extends Component {
     tracks = Object.values(this.props.poll[0].availableChoices)
     if(!this.state.voted){
       return (
-        <TrackList tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)} withVotes={true}/>
+        <div className="voter--voter_tracklist">
+          <TrackList tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)} withVotes={true}/>
+        </div>
       )
     }else{
       src = "https://embed.spotify.com/?uri=spotify:track:" + this.state.voted
@@ -62,7 +64,7 @@ export default class Voter extends Component {
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
         currentVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}
-        currentVoted[this.props.params.songlistRndmId] = track.spotifyId
+        currentVoted[this.props.params.playlistLocalName] = track.spotifyId
         localStorage.setItem("songlistVotedFor", JSON.stringify(currentVoted))
         this.setState({voted: track.spotifyId})
       }
@@ -72,7 +74,7 @@ export default class Voter extends Component {
 
 export default createContainer((props) => {
 
-  songlistRndmId = props.params.songlistRndmId
+  songlistRndmId = props.params.playlistLocalName
   const pollSubscription = Meteor.subscribe('pollFromSonglistRndmId', songlistRndmId)
 
   return {

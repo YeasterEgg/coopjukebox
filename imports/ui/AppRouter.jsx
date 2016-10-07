@@ -4,7 +4,7 @@ import { browserHistory, Router, Route, Link } from 'react-router'
 
 import Voter from './people/Voter.jsx'
 
-import SonglistCreator from './user/SonglistCreator.jsx'
+import MasterController from './user/MasterController.jsx'
 import Callback from './user/Callback.jsx'
 
 import PageNotFound from './common/PageNotFound.jsx'
@@ -13,10 +13,10 @@ export default class AppRouter extends Component {
   render(){
     return(
       <Router history={browserHistory}>
-        <Route path="/" component={SonglistCreator} />
-        <Route path="/sl/:songlistRndmId" component={Voter} />
+        <Route path="/" component={MasterController} />
         <Route path="/callback" component={Callback} />
-        <Route path="/*" component={PageNotFound} />
+        <Route path="/:playlistLocalName" component={Voter} />
+        <Route path="/404" component={PageNotFound} />
       </Router>
     )
   }

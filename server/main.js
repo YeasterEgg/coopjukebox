@@ -17,85 +17,8 @@ Meteor.methods({
     return getAuth(config.clientId, config.redirectUrl, config.scope, sessionId, config.authUrl)
   },
 
-  "createUser": function(code, sessionId){
-    tokenUrl = config.tokenUrl
-    tokenHeaders = {'Authorization': 'Basic ' + (new Buffer(config.clientId + ':' + config.clientSecret).toString('base64'))}
-    form = {
-            code: code,
-            redirect_uri: config.redirectUrl,
-            grant_type: 'authorization_code'
-          }
-    getToken = postApiWrapper(tokenUrl, tokenHeaders, form)
-
-    userUrl = config.userUrl
-    userHeaders = { 'Authorization': 'Bearer ' + getToken.body.access_token }
-    getUserData = getApiWrapper(userUrl, userHeaders)
-    console.log(getUserData.body)
-
-    LoggedUsers.insert({
-      name: getUserData.body.display_name,
-      email: getUserData.body.email,
-      uri: getUserData.body.uri,
-      spotifyId: getUserData.body.id,
-      sessionId: sessionId,
-      playlistName: "",
-      playlistLength: 0,
-      playlistSpotifyId: "",
-      songlistRndmId: "",
-      token: {
-        accessToken: getToken.body.access_token,
-        tokenType: getToken.body.token_type,
-        expiresIn: getToken.body.expires_in,
-        refreshToken: getToken.body.refresh_token,
-        scope: getToken.body.scope,
-        validationStart: new Date,
-      },
-      createdAt: new Date,
-    })
-    return getUserData.body
-  },
-
-  "createPlaylist": function(options, userId){
+  "addTrackToPlaylist": function(userId, playlistId, trackUri){
     user = LoggedUsers.findOne({_id: userId})
-    if(!user){return false}
-    accessToken = user.token.accessToken
-    userSpotifyId = user.spotifyId
-    url = config.playlistUrl(userSpotifyId)
-    headers = {'Authorization': 'Bearer ' + accessToken },
-    form = JSON.stringify(_.pick(options, ['name', 'public']))
-    result = postApiWrapper(url, headers, form)
-    if(result.body.error && result.body.error.status === 401){
-      // {error: { status: 401, message: 'The access token expired' }}
-      updateToken(user._id)
-      Meteor.call('createPlaylist', options, userId)
-    }
-    songlistRndmId = crypto.randomBytes(12).toString('hex')
-
-    LoggedUsers.update({_id: userId}, {$set: {playlistName: options.name,
-                                              playlistLength: options.length,
-                                              playlistSpotifyId: result.body.id,
-                                              songlistRndmId: songlistRndmId }})
-
-    Songlists.insert({
-      playlist: options.name,
-      songlistRndmId: songlistRndmId,
-      userId: userId,
-      possibleChoices: {},
-      playlistLength: options.length,
-      pollSize: 4,
-      startedAt: "",
-      pollDuration: options.duration,
-      userSpotifyId: userSpotifyId,
-      playlistSpotifyId: result.body.id
-    }, function(err, result){
-      return result
-    })
-  },
-
-  "addTrackToPlaylist": function(songlistRndmId, trackUri){
-    user = LoggedUsers.findOne({songlistRndmId: songlistRndmId})
-    userId = user.spotifyId
-    playlistId = user.playlistSpotifyId
     url = "https://api.spotify.com/v1/users/" + userId + "/playlists/" + playlistId + "/tracks"
     form = JSON.stringify({
       uris: [trackUri]
@@ -104,8 +27,8 @@ Meteor.methods({
     result = postApiWrapper(url, headers, form)
     if(result.body.error && result.body.error.status === 401){
       // {error: { status: 401, message: 'The access token expired' }}
-      updateTokenWrapper(user._id)
-      Meteor.call('addTrackToPlaylist', songlistRndmId, trackUri)
+      updateTokenWrapper(userId)
+      Meteor.call('addTrackToPlaylist', userId, playlistId, trackUri)
     }
   },
 

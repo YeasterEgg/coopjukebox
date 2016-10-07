@@ -1,30 +1,30 @@
 # Democracy-Jockey
 Polls for choosing a song in a Spotify playlist
 
-
-NEEDS DOC!
-
-
-1st: when saving a song in a poll, i add 'spo_' before the spotify id in order not to let the key of an object to start with a number.
-
-
 HOW IT SHOULD WORK:
 
-I, User, go to root page and defer all my rights as human being to my poweful app. Then, I create a Playlist with the name that I prefer, which will be linked to a Songlist.
+I, User, go to root page and defer all my rights as human being to my poweful app.
+There I will be able to:
+- Create a Spotify Playlist
+- Choose an already created Spotify Playlist
 
---->NEEDS TO BE DONE<---
-- Choose already existant Playlist and load its songs in the Songlist.  V
+Then everything will focus on to the Playlist I've chosen, and I will be able to create a Songlist.
+That will be possible through 3 different ways:
+1 - Choose a song from the search engine
+2 - Import a Spotify Playlist via its Uri, Url or Id
+3 - Import a previously exported Songlist
 
-Then, I can add as many songs to the Songlist, searching them from an amazing search engine. They will be voted and the most voted one will go to the Playlist. One vote every, don't know, 5 minutes?
+Then, and only then, I will be able to start a poll!
+First, I will have to choose a NOT IN USE poll name, so that the voters will be able to express their choice @ {ROOT_URL}/:poll_name.
+The poll will have 3 main features: playlist length, duration of the vote and polling size.
+{polling_size} tracks from the Songlist will be randomly chosen to be inserted into a poll, that for all of the duration will be voted by anyone who goes to its url. At the end of the poll, the song with more votes will be added to the playlist. That will be repeated, with different random songs, for as many times as the length of the playlist.
 
---->NEEDS TO BE DONE<---
-- Allow user to set how long the Playlist will be.   V
-
-REFACTORING:
+TO BE FUCKING DONE!
 
 - Hide all info from client, both user and voter, but for songlist random id
 - Use only songlist random id for every search/info
 - Add a leading literal code to songlist random id to format for mongo
 - Longer songlist random id
-
-
+- Export current songlist as array of uris
+- Create more than one playlist
+- Retrieve track special data (danceability, etc.)

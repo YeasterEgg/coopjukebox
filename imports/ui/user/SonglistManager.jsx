@@ -14,7 +14,7 @@ cf = require('../../lib/commonFunctions.js')
 config = require('../../lib/config.js')
 querystring = require('querystring')
 
-export default class Chooser extends Component {
+export default class SonglistManager extends Component {
 
   constructor(props){
     super(props)
@@ -78,7 +78,7 @@ export default class Chooser extends Component {
   }
 }
 
-Chooser.propTypes = {
+SonglistManager.propTypes = {
   songlist: PropTypes.object.isRequired,
 }
 
@@ -91,6 +91,6 @@ export default createContainer((props) => {
     poll: Polls.find().fetch(),
     subscription: pollSubscription.ready()
   }
-}, Chooser)
+}, SonglistManager)
 
 
