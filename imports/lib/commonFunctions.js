@@ -6,6 +6,7 @@ getTrackValues = function(track){
   cleanTrack.duration_ms = track.duration_ms
   cleanTrack.spotifyId = track.id
   cleanTrack.previewUrl = track.preview_url
+  cleanTrack.votes = 0
   return cleanTrack
 }
 

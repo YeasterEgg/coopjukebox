@@ -1,10 +1,18 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import TrackSearch from './TrackSearch.jsx'
+import { createContainer } from 'meteor/react-meteor-data'
+
+import SpotifyHeader from './SpotifyHeader.jsx'
+import SpotifyTrackImporter from './SpotifyTrackImporter.jsx'
 import Waiter from '../common/Waiter.jsx'
 import TrackList from '../common/TrackList.jsx'
+
+import { Polls } from '../../api/polls.js'
+
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 cf = require('../../lib/commonFunctions.js')
+config = require('../../lib/config.js')
+querystring = require('querystring')
 
 export default class Chooser extends Component {
 
@@ -23,46 +31,15 @@ export default class Chooser extends Component {
         <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionEnterTimeout={500} transitionLeaveTimeout={500}>
           {this.renderPositiveNotice()}
         </ReactCSSTransitionGroup>
-        {this.renderStartedAt()}
-        <div className="songlist_creator--playlist_link">
-          <iframe src={"https://embed.spotify.com/?uri=spotify:user:" + this.props.songlist.userSpotifyId + ":playlist:" + this.props.songlist.playlistSpotifyId} width="300" height="80" frameBorder="0" allowTransparency="true"></iframe>
-        </div>
-        <div className="songlist_creator--songlist_link">
-          <a href={Meteor.absoluteUrl() + "sl/" + this.props.songlist.songlistRndmId}> {Meteor.absoluteUrl() + this.props.songlist.songlistRndmId} </a>
-        </div>
-        <div className="songlist_creator--search_container">
-          <form onSubmit={this.searchTrack.bind(this)} className="songlist_creator--search_form" >
-            <input name="track_search" id="track_search" type="text" size="20" maxLength="50"/>
-            <button type="submit">Search!</button>
-          </form>
-          <div className="songlist_creator--search_results">
-            {this.renderTracklistComponent()}
-          </div>
-        </div>
+        <SpotifyHeader songlist={this.props.songlist} />
         {this.renderStartButton()}
-        {this.renderImportPlaylistButton()}
+        <SpotifyTrackImporter songlist={this.props.songlist} setPositiveNotice={this.setPositiveNotice.bind(this)}/>
       </div>
-    )
-  }
-
-  renderTracklistComponent(){
-    if(this.state.searchResult.length > 0){
-      tracklistComponent = <TrackList tracks={this.state.searchResult} clickOnTrackAction={this.addTrackToSonglist.bind(this)} />
-    }else{
-      tracklistComponent = null
-    }
-    return(
-      <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionEnterTimeout={500} transitionLeaveTimeout={500}>
-        {tracklistComponent}
-      </ReactCSSTransitionGroup>
     )
   }
 
   renderPositiveNotice(){
     if(this.state.positiveNotice){
-      setTimeout(function(){
-        this.setState({positiveNotice: false})
-      }.bind(this), 3000)
       return(
         <div className="songlist_creator--track_added_notice button-success">{this.state.positiveNotice}</div>
       )
@@ -72,88 +49,48 @@ export default class Chooser extends Component {
   }
 
   renderStartButton(){
-    return(
-      <button type="submit" onClick={this.startVoting.bind(this)}>Start Voting!</button>
-    )
-  }
-
-  renderImportPlaylistButton(){
-    return(
-      <form className="songlist_creator--add_playlist" onSubmit={this.importPlaylist.bind(this)} >
-        <label htmlFor="playlist_id">Import playlist from ID od SpotifyUri</label>
-        <input name="playlist_id" id="playlist_id" type="text" size="20" maxLength="70"/>
-        <button type="submit">Import Playlist!</button>
-      </form>
-    )
-  }
-
-  renderStartedAt(){
-    if(this.state.pollStarted){
+    if(this.props.poll[0]){
       return(
-        <div className="songlist_creator--playlist_start">
-          <span>{this.props.songlist.startedAt.toLocaleString()}</span>
-        </div>
+        <button type="submit" className="songlist_creator--start_poll button-round pure-button button-error pure-button-disabled" onClick={function(){console.log('Active Polls!')}} disabled>There are polls still ongoing!</button>
+      )
+    }else{
+      return(
+        <button type="submit" className="songlist_creator--start_poll button-round pure-button pure-button-primary" onClick={this.startVoting.bind(this)}>Start Voting!</button>
       )
     }
   }
 
   startVoting(){
-    songlistId = this.props.songlist._id
-    Meteor.call("startSonglistPoll", songlistId, function(error, result){
+    songlistRndmId = this.props.songlist.songlistRndmId
+    Meteor.call("startSonglistPoll", songlistRndmId, function(error, result){
       if(result){
         this.setState({pollStarted: result})
+        this.setPositiveNotice("Voting started! Yahoo Democracy!")
       }
     }.bind(this))
   }
 
-  importPlaylist(event){
-    event.preventDefault()
-    songlistRndmId = this.props.songlist.songlistRndmId
-    playlistSpotifyId = document.getElementById('playlist_id').value.split(":").slice(-1)[0]
-    Meteor.call("importPlaylist", playlistSpotifyId, songlistRndmId, function(error, result){
-      tracksNo = result.items.length
-      notice = "Imported " + tracksNo + " songs from playlist!"
-      this.setState({"positiveNotice": notice})
-    }.bind(this))
+  setPositiveNotice(notice){
+    setTimeout(function(){
+      this.setState({positiveNotice: false})
+    }.bind(this), 3000)
+    this.setState({"positiveNotice": notice})
   }
-
-  searchTrack(event){
-    event.preventDefault()
-    if(document.getElementById('track_search').value.length > 3){
-      params = {
-        q: document.getElementById('track_search').value,
-        type: "track"
-      }
-      url = "https://api.spotify.com/v1/search?" + querystring.stringify(params)
-      xhr = new XMLHttpRequest()
-      xhr.open('GET', url, true)
-      xhr.onload = function (event){
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          searchResult = JSON.parse(xhr.responseText).tracks.items
-          tracks = _.map(searchResult, function(track){
-            return cf.getTrackValues(track)
-          })
-          console.log(tracks)
-          this.setState({searchResult: tracks})
-        }
-      }.bind(this)
-      xhr.send(null)
-    }
-  }
-
-  addTrackToSonglist(track){
-    songlistId = this.props.songlist._id
-    this.setState({searchResult: []})
-    Meteor.call("addTrackToSonglist", songlistId, track, function(error, result){
-      if(!error && result){
-        this.setState({searchResult: [], positiveNotice: "Added " + track.name + " to Songlist!"})
-      }
-    }.bind(this))
-  }
-
 }
 
 Chooser.propTypes = {
   songlist: PropTypes.object.isRequired,
 }
+
+export default createContainer((props) => {
+
+  songlistRndmId = props.songlist.songlistRndmId
+  const pollSubscription = Meteor.subscribe('pollFromSonglistRndmId', songlistRndmId)
+
+  return {
+    poll: Polls.find().fetch(),
+    subscription: pollSubscription.ready()
+  }
+}, Chooser)
+
 

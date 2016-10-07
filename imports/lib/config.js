@@ -6,6 +6,7 @@ const redirectUrl = Meteor.absoluteUrl() + "callback"
 const authUrl = "https://accounts.spotify.com/authorize"
 const tokenUrl = "https://accounts.spotify.com/api/token"
 const userUrl = "https://api.spotify.com/v1/me/"
+const searchUrl = "https://api.spotify.com/v1/search?"
 const playlistUrl = function(userSpotifyId){
   return ("https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists")
 }
@@ -23,4 +24,5 @@ module.exports = {
   userUrl: userUrl,
   playlistUrl: playlistUrl,
   playlistTracksUrl: playlistTracksUrl,
+  searchUrl: searchUrl,
 }

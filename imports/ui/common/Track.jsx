@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
+const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
 
 export default class Track extends Component {
 
@@ -13,19 +14,19 @@ export default class Track extends Component {
       seconds = secondsInt
     }
     return(
-      <a href="#" className="tracklist--track_cell" onClick={function(event){event.preventDefault();this.props.clickOnTrackAction(this.props.track)}.bind(this)} >
+      <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionEnterTimeout={2000} transitionLeaveTimeout={500} component="a" className="tracklist--track_cell" href="#" onClick={function(event){event.preventDefault();this.props.clickOnTrackAction(this.props.track)}.bind(this)}>
         <div className="tracklist--track_title">{this.props.track.name}</div>
         <div className="tracklist--track_info">
           {this.renderVotes.bind(this)()}
           <div className="tracklist--track_duration">{minutes + ":" + seconds}</div>
           <div className="tracklist--track_artist">{this.props.track.artist}</div>
         </div>
-      </a>
+      </ReactCSSTransitionGroup>
     )
   }
 
   renderVotes(){
-    if(typeof this.props.track.votes !== 'undefined'){
+    if(this.props.withVotes){
       return(
         <div className="tracklist--track_votes">{"Votes: " + this.props.track.votes}</div>
       )
@@ -38,5 +39,6 @@ export default class Track extends Component {
 
 Track.propTypes = {
   track: PropTypes.object.isRequired,
-  clickOnTrackAction: PropTypes.func.isRequired
+  clickOnTrackAction: PropTypes.func.isRequired,
+  withVotes: PropTypes.bool.isRequired
 }

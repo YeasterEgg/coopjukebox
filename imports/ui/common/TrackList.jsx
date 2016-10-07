@@ -11,7 +11,7 @@ export default class TrackList extends Component {
       <div className="tracklist--tracklist_container" onClick={function(){console.log(this.props)}.bind(this)}>
         {this.props.tracks.map(function(track){
           return(
-            <Track track={track} key={track.spotifyId} clickOnTrackAction={this.props.clickOnTrackAction.bind(this)}/>
+            <Track track={track} key={track.spotifyId} clickOnTrackAction={this.props.clickOnTrackAction.bind(this)} withVotes={this.props.withVotes}/>
           )
         }.bind(this))}
       </div>
@@ -21,5 +21,6 @@ export default class TrackList extends Component {
 
 TrackList.propTypes = {
   tracks: PropTypes.array.isRequired,
-  clickOnTrackAction: PropTypes.func.isRequired
+  clickOnTrackAction: PropTypes.func.isRequired,
+  withVotes: PropTypes.bool.isRequired
 }

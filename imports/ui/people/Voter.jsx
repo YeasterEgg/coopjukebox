@@ -41,10 +41,10 @@ export default class Voter extends Component {
   }
 
   renderPage(){
-    tracks = Object.values(this.props.poll[0].possibleChoices)
+    tracks = Object.values(this.props.poll[0].availableChoices)
     if(!this.state.voted){
       return (
-        <TrackList tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)}/>
+        <TrackList tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)} withVotes={true}/>
       )
     }else{
       src = "https://embed.spotify.com/?uri=spotify:track:" + this.state.voted

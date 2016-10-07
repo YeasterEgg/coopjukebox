@@ -3,12 +3,10 @@ import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
 
 import Waiter from '../common/Waiter.jsx'
-import TrackSearch from './TrackSearch.jsx'
 import Chooser from './Chooser.jsx'
 import { LoggedUsers } from '../../api/loggedUsers.js'
 import { Songlists } from '../../api/songlists.js'
 
-querystring = require('querystring')
 const crypto = require('crypto')
 
 export default class SonglistCreator extends Component {
@@ -26,10 +24,8 @@ export default class SonglistCreator extends Component {
       if(loggedUserResult.logged){
         this.setState({userId: loggedUserResult.userId})
         if(loggedUserResult.songlistRndmId){
-          console.log(loggedUserResult)
           Meteor.subscribe("songlistFromSonglistRndmId", loggedUserResult.songlistRndmId,{
             onReady: function(){
-              console.log(Songlists.find().fetch())
               this.setState({songlist: Songlists.find().fetch()[0]})
             }.bind(this)
           })
@@ -106,8 +102,8 @@ export default class SonglistCreator extends Component {
     }
     options =  {
       "name": name,
-      "length": length,
-      "duration": duration,
+      "length": parseInt(length),
+      "duration": parseInt(duration),
     }
     Meteor.call("createPlaylist", options, this.state.userId, function(error, result){
       if(!error){
@@ -117,8 +113,8 @@ export default class SonglistCreator extends Component {
   }
 
   addTrackToSonglist(track){
-    songlistId = this.state.songlistId
-    Meteor.call("addTrackToSonglist", songlistId, track, function(error, result){
+    songlistRndmId = this.state.songlistRndmId
+    Meteor.call("addTrackToSonglist", songlistRndmId, track, function(error, result){
       if(!error){
         return result
       }
