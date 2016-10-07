@@ -81,7 +81,7 @@ export default class SonglistCreator extends Component {
   }
 
   getAuth(){
-    sessionId = crypto.randomBytes(64).toString('base64')
+    sessionId = crypto.randomBytes(64).toString('hex')
     localStorage.setItem("sessionId", sessionId)
     Meteor.call('getAuthUrl', sessionId, function(error, spotifyAuthUrl){
       window.location.replace(spotifyAuthUrl)
