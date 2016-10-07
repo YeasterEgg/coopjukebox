@@ -8,6 +8,8 @@ export default class Voter extends Component {
     queryParams = this.props.location.query
     if(queryParams["code"] && (queryParams["state"] === localStorage.getItem("sessionId"))){
       Meteor.call("createUser", queryParams["code"], queryParams["state"], function(error, result){
+        console.log(error)
+        console.log(result)
         window.location.replace(Meteor.absoluteUrl())
       })
     }
