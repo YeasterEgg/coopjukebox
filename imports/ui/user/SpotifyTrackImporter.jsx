@@ -62,11 +62,14 @@ export default class SpotifyTrackImporter extends Component {
 
   importPlaylist(event){
     event.preventDefault()
-    songlistRndmId = this.props.songlist.songlistRndmId
-    playlistSpotifyId = document.getElementById('playlist_id').value.split(":").slice(-1)[0]
-    Meteor.call("importPlaylist", playlistSpotifyId, songlistRndmId, function(error, result){
+    uri = document.getElementById('playlist_id').value.split(":")
+    if(uri.length != 5) return false
+    importedUserId = uri[2]
+    importedPlaylistSpotifyId = uri[4]
+    Meteor.call("playlist.importPlaylist", importedPlaylistSpotifyId, importedUserId, this.props.playlist, function(error, result){
       tracksNo = result.items.length
       this.props.setPositiveNotice("Imported " + tracksNo + " songs from playlist!")
+      document.getElementById('playlist_id').value = ''
     }.bind(this))
   }
 
@@ -86,8 +89,8 @@ export default class SpotifyTrackImporter extends Component {
           tracks = _.map(searchResult, function(track){
             return cf.getTrackValues(track)
           })
-          console.log(tracks)
           this.setState({searchResult: tracks})
+          document.getElementById('track_search').value = ''
         }
       }.bind(this)
       xhr.send(null)
@@ -95,18 +98,16 @@ export default class SpotifyTrackImporter extends Component {
   }
 
   addTrackToSonglist(track){
-    songlistRndmId = this.props.songlist.songlistRndmId
-    this.setState({searchResult: []})
-    Meteor.call("addTrackToSonglist", songlistRndmId, track, function(error, result){
+    playlist = this.props.playlist
+    Meteor.call("playlist.addTrackToSonglist", playlist, track, function(error, result){
       if(!error && result){
         this.setState({searchResult: []})
         this.props.setPositiveNotice("Added " + track.name + " to Songlist!")
       }
     }.bind(this))
   }
-
 }
 
 SpotifyTrackImporter.propTypes = {
-  songlist: PropTypes.object.isRequired,
+  playlist: PropTypes.object.isRequired,
 }

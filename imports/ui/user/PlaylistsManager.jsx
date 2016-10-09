@@ -1,25 +1,29 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
+import { createContainer } from 'meteor/react-meteor-data'
+
 import SonglistManager from './SonglistManager.jsx'
+import Waiter from '../common/Waiter.jsx'
+
+import { Playlists } from '../../api/playlists.js'
 
 export default class PlaylistsManager extends Component {
 
   constructor(props){
     super(props)
     this.state = {
-      currentPlaylist: false,
+      currentPlaylistIndex: false,
     }
   }
 
   render(){
-    console.log(this.state)
-    if(!this.state.currentPlaylist){
+    if(this.state.currentPlaylistIndex === false){
       return(
         <div>{this.renderPlaylistIndex()}</div>
       )
     }else{
       return(
-        <SonglistManager playlist={this.state.currentPlaylist} userId={this.props.userId} />
+        <SonglistManager playlist={this.props.playlists[this.state.currentPlaylistIndex]} user={this.props.user} />
       )
     }
   }
@@ -29,9 +33,9 @@ export default class PlaylistsManager extends Component {
       return(
         <div className="playlist_manager--playlist_index">
           <ul>
-          {this.props.playlists.map(function(playlist){
+          {this.props.playlists.map(function(playlist, index){
             return(
-              <li key={playlist.spotifyId} onClick={function(){this.clickOnPlaylist.bind(this)(playlist)}.bind(this)}>
+              <li key={playlist._id} onClick={function(){this.clickOnPlaylist.bind(this)(index)}.bind(this)}>
                 {"Name: " + playlist.name}
               </li>
             )
@@ -87,17 +91,33 @@ export default class PlaylistsManager extends Component {
       "duration": parseInt(duration),
       "public": true
     }
-    Meteor.call("loggedUsers.addPlaylist", this.props.userId, playlist, function(error, result){
+    Meteor.call("playlists.create", this.props.user, playlist, function(error, result){
       if(result){
-        alert("SonglistCreated!")
+        console.log("SonglistCreated!")
+        document.getElementById("playlist_name").value = ''
+        document.getElementById("playlist_length").value = ''
+        document.getElementById("playlist_duration").value = ''
       }else{
         console.log(error)
-        console.log(result)
       }
     })
   }
 
-  clickOnPlaylist(playlist){
-    this.setState({currentPlaylist: playlist})
+  clickOnPlaylist(index){
+    this.setState({currentPlaylistIndex: index})
   }
 }
+
+PlaylistsManager.propTypes = {
+  user: PropTypes.object.isRequired,
+}
+
+export default createContainer((props) => {
+
+  const playlistsSubscription = Meteor.subscribe('playlists.fromUserId', props.user._id)
+
+  return {
+    playlists: Playlists.find().fetch(),
+    subscriptionsReady: playlistsSubscription.ready()
+  }
+}, PlaylistsManager)

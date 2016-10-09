@@ -15,7 +15,7 @@ export default class AppRouter extends Component {
       <Router history={browserHistory}>
         <Route path="/" component={MasterController} />
         <Route path="/callback" component={Callback} />
-        <Route path="/:playlistLocalName" component={Voter} />
+        <Route path="/:chosenName" component={Voter} />
         <Route path="/404" component={PageNotFound} />
       </Router>
     )

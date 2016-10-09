@@ -11,21 +11,3 @@ if (Meteor.isServer) {
     return Playlists.find({_id: spotifyId})
   })
 }
-
-Meteor.methods({
-
-  "playlists.create": function(playlist, userId){
-    Playlists.insert({
-      _id: playlist.spotifyId,
-      playlist: playlist.name,
-      userId: userId,
-      songlist: {},
-      playlistLength: playlist.length,
-      pollSize: 4,
-      pollDuration: playlist.duration,
-
-      startedAt: new Date,
-    })
-  },
-
-})

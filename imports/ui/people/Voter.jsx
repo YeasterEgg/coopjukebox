@@ -29,7 +29,7 @@ export default class Voter extends Component {
       return(
         <Waiter />
       )
-    }else if(!this.props.poll[0]){
+    }else if(!this.props.poll){
       return(
         <PageNotFound />
       )
@@ -41,7 +41,7 @@ export default class Voter extends Component {
   }
 
   renderPage(){
-    tracks = Object.values(this.props.poll[0].availableChoices)
+    tracks = Object.values(this.props.poll.availableChoices)
     if(!this.state.voted){
       return (
         <div className="voter--voter_tracklist">
@@ -60,7 +60,7 @@ export default class Voter extends Component {
   }
 
   addVoteToTrack(track){
-    Meteor.call("addVoteToTrack", this.props.poll[0].songlistRndmId, track, function(error, result){
+    Meteor.call("addVoteToTrack", this.props.poll.songlistRndmId, track, function(error, result){
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
         currentVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}
@@ -74,11 +74,10 @@ export default class Voter extends Component {
 
 export default createContainer((props) => {
 
-  songlistRndmId = props.params.playlistLocalName
-  const pollSubscription = Meteor.subscribe('pollFromSonglistRndmId', songlistRndmId)
+  const pollSubscription = Meteor.subscribe('polls.fromChosenName', props.chosenName)
 
   return {
-    poll: Polls.find().fetch(),
+    poll: Polls.findOne(),
     subscription: pollSubscription.ready()
   }
 }, Voter)

@@ -14,7 +14,16 @@ body
 
 // Creator
 
-.songlist_creator--container
+.songlist_creator--songlist_container
+  height: 100px
+  overflow-y: scroll
+  border: 4px solid black
+  width: 60%
+  margin: 10px auto
+  text-align: center
+  padding: 10px
+
+.songlist_creator--
   position: relative
   margin: auto
   width: 90%
@@ -24,6 +33,10 @@ body
   flex-direction: column
   justify-content: center
   padding-top: 100px
+
+.songlist_creator--songlist_track_delete
+  float: right
+  font-weight: 900
 
 .songlist_creator--track_added_notice
   position: absolute

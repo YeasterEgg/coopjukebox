@@ -22,11 +22,7 @@ getTokenFromUser = function(userId){
   }
 }
 
-updateToken = function(userId){
-  user = LoggedUsers.findOne({_id: userId})
-  if(!user){
-    return null
-  }
+updateToken = function(user){
   token = user.token
   expiringDate = new Date(token.validationStart.getTime() + token.expiresIn * 1000)
   now = new Date
@@ -40,13 +36,14 @@ updateToken = function(userId){
         }
   headers = { 'Authorization': 'Basic ' + (new Buffer(config.clientId + ':' + config.clientSecret).toString('base64')) }
   newTokenResponse = postApiWrapper(url, headers, form)
-  LoggedUsers.update({_id: userId}, {$set: {token: {
+  console.log(newTokenResponse.body)
+  LoggedUsers.update({_id: user._id}, {$set: {token: {
                                                     accessToken: newTokenResponse.body.access_token,
                                                     tokenType: newTokenResponse.body.token_type,
                                                     expiresIn: newTokenResponse.body.expires_in,
                                                     refreshToken: newTokenResponse.body.refresh_token,
                                                     scope: newTokenResponse.body.scope,
-                                                    expiringDate: now,
+                                                    validationStart: now,
                                                     }
     }
   })

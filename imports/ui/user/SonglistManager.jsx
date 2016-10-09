@@ -21,7 +21,7 @@ export default class SonglistManager extends Component {
     this.state = {
       searchResult: [],
       positiveNotice: false,
-      pollStarted: this.props.songlist.startedAt
+      // pollStarted: this.props.poll.startedAt
     }
   }
 
@@ -31,9 +31,10 @@ export default class SonglistManager extends Component {
         <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionEnterTimeout={500} transitionLeaveTimeout={500}>
           {this.renderPositiveNotice()}
         </ReactCSSTransitionGroup>
-        <SpotifyHeader songlist={this.props.songlist} />
+        <SpotifyHeader playlist={this.props.playlist} />
         {this.renderStartButton()}
-        <SpotifyTrackImporter songlist={this.props.songlist} setPositiveNotice={this.setPositiveNotice.bind(this)}/>
+        <SpotifyTrackImporter playlist={this.props.playlist} setPositiveNotice={this.setPositiveNotice.bind(this)}/>
+        {this.renderSonglist()}
       </div>
     )
   }
@@ -49,7 +50,7 @@ export default class SonglistManager extends Component {
   }
 
   renderStartButton(){
-    if(this.props.poll[0]){
+    if(this.props.poll){
       return(
         <button type="submit" className="songlist_creator--start_poll button-round pure-button button-error pure-button-disabled" onClick={function(){console.log('Active Polls!')}} disabled>There are polls still ongoing!</button>
       )
@@ -60,14 +61,35 @@ export default class SonglistManager extends Component {
     }
   }
 
+  renderSonglist(){
+    return(
+      <div className="songlist_creator--songlist_container">
+        {Object.values(this.props.playlist.songlist).map(function(track){
+          return(
+            <div className="songlist_creator--songlist_track" key={track.spotifyId}>
+              <span className="songlist_creator--songlist_track_name">{track.name}</span>
+              <span className="songlist_creator--songlist_track_delete" onClick={function(){this.removeFromSonglist(track)}.bind(this)}>X</span>
+            </div>
+          )
+        }.bind(this))}
+      </div>
+    )
+  }
+
   startVoting(){
-    songlistRndmId = this.props.songlist.songlistRndmId
-    Meteor.call("startSonglistPoll", songlistRndmId, function(error, result){
+    Meteor.call("poll.startPoll", this.props.playlist, function(error, result){
       if(result){
         this.setState({pollStarted: result})
         this.setPositiveNotice("Voting started! Yahoo Democracy!")
       }
     }.bind(this))
+  }
+
+  removeFromSonglist(track){
+    Meteor.call("playlist.removeTrackFromSonglist", this.props.playlist, track, function(error, result){
+      console.log(error)
+      console.log(result)
+    })
   }
 
   setPositiveNotice(notice){
@@ -79,18 +101,15 @@ export default class SonglistManager extends Component {
 }
 
 SonglistManager.propTypes = {
-  songlist: PropTypes.object.isRequired,
+  playlist: PropTypes.object.isRequired,
 }
 
 export default createContainer((props) => {
 
-  songlistRndmId = props.songlist.songlistRndmId
-  const pollSubscription = Meteor.subscribe('pollFromSonglistRndmId', songlistRndmId)
+  const pollSubscription = Meteor.subscribe('polls.fromPlaylistId', props.playlist._id)
 
   return {
-    poll: Polls.find().fetch(),
+    poll: Polls.findOne(),
     subscription: pollSubscription.ready()
   }
 }, SonglistManager)
-
-
