@@ -161,8 +161,9 @@ Meteor.methods({
       active: true,
       winners: "",
       pollsLeft: parseInt(playlist.playlistLength)
-    }, function(err,result){
+    }, function(err,res){
       if(!err){
+        poll = Polls.find({_id: res})
         Meteor.setTimeout(function(){
           Meteor.call("poll.endPoll", poll, playlist)
         }, 60000 * playlist.pollDuration)
