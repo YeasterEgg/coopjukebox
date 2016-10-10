@@ -22,9 +22,6 @@ The poll will have 3 main features: playlist length, duration of the vote and po
 TO BE FUCKING DONE!
 
 - Hide all info from client, both user and voter, but for songlist random id
-- Use only songlist random id for every search/info
-- Add a leading literal code to songlist random id to format for mongo
-- Longer songlist random id
 - Export current songlist as array of uris
 - Create more than one playlist
 - Retrieve track special data (danceability, etc.)

@@ -5,14 +5,16 @@ import { Playlists } from '../imports/api/playlists.js'
 const crypto = require('crypto')
 
 Meteor.startup(() => {
+  Polls.update({active: true}, {$set: {active: false}} )
 })
 
 getApiWrapper = Meteor.wrapAsync(getApi)
 postApiWrapper = Meteor.wrapAsync(postApi)
-updateTokenWrapper = Meteor.wrapAsync(updateToken)
+// updateTokenWrapper = Meteor.wrapAsync(updateToken)
 
 Meteor.methods({
-/// LOGGEUSER METHODS
+
+/// LOGGEDUSER METHODS
 
   'loggedUsers.fromSessionId': function(sessionId){
       currentUser = LoggedUsers.findOne({sessionId: sessionId})
@@ -70,17 +72,11 @@ Meteor.methods({
 /// PLAYLIST METHODS
 
   "playlists.create": function(user, playlist){
+    updateToken(user)
     url = config.playlistUrl(user._id)
     headers = {'Authorization': 'Bearer ' + user.token.accessToken }
     form = JSON.stringify(_.pick(playlist, ['name', 'public']))
     result = postApiWrapper(url, headers, form)
-    if(result.body.error && result.body.error.status === 401){
-      console.log(result.body)
-      // {error: { status: 401, message: 'The access token expired' }}
-      updateToken(user)
-      Meteor.call('playlists.create', user, playlist)
-    }
-
     if(result.body.error){
       console.log(result.body)
       return false
@@ -107,39 +103,14 @@ Meteor.methods({
     })
   },
 
-  "playlist.addTrackToSonglist": function(playlist, track){
-    Playlists.update({_id: playlist._id}, {$set: {['songlist.track_'+track.spotifyId]: track}})
-    return true
-  },
-
-  "playlist.removeTrackFromSonglist": function(playlist, track){
-    console.log(playlist)
-    console.log(track)
-    Playlists.update({_id: playlist._id}, {$unset: {['songlist.track_'+track.spotifyId]: ''}})
-    return true
-  },
-
-  "playlist.addTrackToPlaylist": function(userId, playlistId, trackUri){
-    updateTokenWrapper(user)
-    user = LoggedUsers.findOne({_id: user._id})
-    url = "https://api.spotify.com/v1/users/" + user._id + "/playlists/" + playlistId + "/tracks"
-    form = JSON.stringify({
-      uris: [trackUri]
-    })
-    headers = {'Authorization': 'Bearer ' + user.token.accessToken }
-    result = postApiWrapper(url, headers, form)
-  },
-
-
   "playlist.importPlaylist": function(importedPlaylistSpotifyId, importedUserId, playlist){
-    updateTokenWrapper(user)
     user = LoggedUsers.findOne({_id: playlist.userId})
+    updateToken(user)
     url = config.playlistTracksUrl(importedUserId, importedPlaylistSpotifyId)
     headers = {'Authorization': 'Bearer ' + user.token.accessToken }
     result = getApiWrapper(url, headers)
-    if(result.body.error){
-      console.log(result.body.error)
-    }else{
+    if(!result.body.error){
+      console.log(result.body)
       songlist = {}
       _.map(result.body.items, function(item){
         parsedTrack = cf.getTrackValues(item.track)
@@ -151,12 +122,28 @@ Meteor.methods({
     }
   },
 
-/// POLL METHODS
-
-  "poll.addVoteToTrack": function(playlistId, track){
-    increment = {['availableChoices.track_'+track.spotifyId+'.votes']: 1}
-    Polls.update({playlistId: playlistId, active: true}, {$inc: increment})
+  "playlist.addTrackToSonglist": function(playlist, track){
+    Playlists.update({_id: playlist._id}, {$set: {['songlist.track_'+track.spotifyId]: track}})
+    return true
   },
+
+  "playlist.removeTrackFromSonglist": function(playlist, track){
+    Playlists.update({_id: playlist._id}, {$unset: {['songlist.track_'+track.spotifyId]: ''}})
+    return true
+  },
+
+  "playlist.addTrackToPlaylist": function(playlist, trackUri){
+    user = LoggedUsers.findOne({_id: playlist._id})
+    updateToken(user)
+    url = "https://api.spotify.com/v1/users/" + user._id + "/playlists/" + playlist._id + "/tracks"
+    form = JSON.stringify({
+      uris: [trackUri]
+    })
+    headers = {'Authorization': 'Bearer ' + user.token.accessToken }
+    result = postApiWrapper(url, headers, form)
+  },
+
+/// POLL METHODS
 
   "poll.startPoll": function(playlist){
     nRandomSongs = _.sample(playlist.songlist, playlist.pollSize)
@@ -177,38 +164,49 @@ Meteor.methods({
     }, function(err,result){
       if(!err){
         Meteor.setTimeout(function(){
-          Meteor.call("poll.endPoll", poll)
+          Meteor.call("poll.endPoll", poll, playlist)
         }, 60000 * playlist.pollDuration)
         return result
       }
     })
   },
 
-  "poll.endPoll": function(songlistRndmId){
+  "poll.addVoteToTrack": function(poll, track){
+    increment = {['availableChoices.track_'+track.spotifyId+'.votes']: 1}
+    Polls.update({_id: poll._id}, {$inc: increment})
+  },
+
+  "poll.endPoll": function(poll, playlist){
     orderedTracks = _.sortBy(Object.values(poll.availableChoices), function(track){
       return track.votes
     })
     winner = orderedTracks.slice(-1)[0]
     winnerUri = "spotify:track:" + winner.spotifyId
-    Meteor.call('addTrackToPlaylist', songlistRndmId, winnerUri, function(err, res){
-    })
+    console.log("And the winner issssss.... " + winner.name)
+    Meteor.call('playlist.addTrackToPlaylist', playlist, winnerUri)
     if(poll.pollsLeft > 0){
       console.log("new poll!")
+      delete poll.possibleChoices["track_" + winner.spotifyId]
       nRandpollomSongs = _.sample(poll.possibleChoices, poll.pollSize)
       availableChoices = {}
       _.map(nRandomSongs, function(song){
-        availableChoices['spo_'+song.spotifyId] = song
+        availableChoices['track_'+song.spotifyId] = song
       })
-      Polls.update({songlistRndmId: songlistRndmId, active: true}, {$push: {winners: winner},
-                                                                    $set: {availableChoices: availableChoices},
-                                                                    $inc: {pollsLeft: -1}})
+      pollUpdates = {
+        $push: {winners: winner},
+        $set: {
+              availableChoices: availableChoices,
+              possibleChoices: poll.possibleChoices
+              },
+        $inc: {pollsLeft: -1}
+      }
+      Polls.update({_id: poll._id}, pollUpdates)
       Meteor.setTimeout(function(){
-        Meteor.call("endPoll", songlistRndmId)
+        Meteor.call("poll.endPoll", poll, playlist)
       }, 60000 * poll.pollDuration)
     }else{
       console.log('no more polls :(')
-      Polls.update({songlistRndmId: songlistRndmId, active: true}, {$push: {winners: winner},
-                                                                    $set: {active: false}})
+      Polls.update({_id: poll._id}, {$push: {winners: winner}, $set: {active: false}})
     }
   },
 

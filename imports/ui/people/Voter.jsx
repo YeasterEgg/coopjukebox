@@ -16,12 +16,13 @@ export default class Voter extends Component {
   }
 
   componentWillMount(){
-    pollsVoted = JSON.parse(localStorage.getItem("songlistVotedFor"))
-    if(!pollsVoted){return null}
-    if(pollsVoted[this.props.poll._id]){
-      console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
-      this.setState({voted: pollsVoted[this.props.poll._id]})
-    }
+    // pollsVoted = JSON.parse(localStorage.getItem("songlistVotedFor"))
+    // console.log(pollsVoted)
+    // if(!pollsVoted){return null}
+    // if(pollsVoted[this.props.poll._id]){
+    //   console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
+    //   this.setState({voted: pollsVoted[this.props.poll._id]})
+    // }
   }
 
   render(){
@@ -60,7 +61,7 @@ export default class Voter extends Component {
   }
 
   addVoteToTrack(track){
-    Meteor.call("addVoteToTrack", this.props.poll.songlistRndmId, track, function(error, result){
+    Meteor.call("poll.addVoteToTrack", this.props.poll, track, function(error, result){
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
         currentVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}

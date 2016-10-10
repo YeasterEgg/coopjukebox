@@ -6,7 +6,7 @@ import { LoggedUsers } from '../../api/loggedUsers.js'
 
 import Waiter from '../common/Waiter.jsx'
 import AuthButton from './AuthButton.jsx'
-import PlaylistsManager from './PlaylistsManager.jsx'
+import PlaylistsIndex from './PlaylistsIndex.jsx'
 
 export default class MasterController extends Component {
 
@@ -16,7 +16,7 @@ export default class MasterController extends Component {
     }else if(!this.props.user){
       return(<AuthButton />)
     }else{
-      return(<PlaylistsManager user={this.props.user} />)
+      return(<PlaylistsIndex user={this.props.user} />)
     }
   }
 }

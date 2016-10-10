@@ -26,25 +26,22 @@ updateToken = function(user){
   token = user.token
   expiringDate = new Date(token.validationStart.getTime() + token.expiresIn * 1000)
   now = new Date
-  if(expiringDate > now){
-    return null
+  if(expiringDate < now){
+    url = config.tokenUrl
+    form = {
+            grant_type: 'refresh_token',
+            refresh_token: token.refreshToken,
+          }
+    headers = { 'Authorization': 'Basic ' + (new Buffer(config.clientId + ':' + config.clientSecret).toString('base64')) }
+    newTokenResponse = postApiWrapper(url, headers, form)
+    token = {
+              accessToken: newTokenResponse.body.access_token,
+              tokenType: newTokenResponse.body.token_type,
+              expiresIn: newTokenResponse.body.expires_in,
+              refreshToken: token.refreshToken,
+              scope: newTokenResponse.body.scope,
+              validationStart: now,
+            }
+    LoggedUsers.update({_id: user._id}, {$set: {token: token } } )
   }
-  url = config.tokenUrl
-  form = {
-          grant_type: 'refresh_token',
-          refresh_token: token.refreshToken,
-        }
-  headers = { 'Authorization': 'Basic ' + (new Buffer(config.clientId + ':' + config.clientSecret).toString('base64')) }
-  newTokenResponse = postApiWrapper(url, headers, form)
-  console.log(newTokenResponse.body)
-  LoggedUsers.update({_id: user._id}, {$set: {token: {
-                                                    accessToken: newTokenResponse.body.access_token,
-                                                    tokenType: newTokenResponse.body.token_type,
-                                                    expiresIn: newTokenResponse.body.expires_in,
-                                                    refreshToken: newTokenResponse.body.refresh_token,
-                                                    scope: newTokenResponse.body.scope,
-                                                    validationStart: now,
-                                                    }
-    }
-  })
 }

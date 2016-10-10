@@ -30,7 +30,7 @@ export default class SpotifyTrackImporter extends Component {
 
   renderImportPlaylistButton(){
     return(
-      <form className="songlist_creator--add_playlist" onSubmit={this.importPlaylist.bind(this)} >
+      <form className="playlist_manager--add_playlist" onSubmit={this.importPlaylist.bind(this)} >
         <label htmlFor="playlist_id">Import playlist from ID or SpotifyUri</label>
         <input name="playlist_id" id="playlist_id" type="text" size="20" maxLength="70"/>
         <button type="submit">Import Playlist</button>
@@ -40,7 +40,7 @@ export default class SpotifyTrackImporter extends Component {
 
   renderSearchForm(){
     return(
-      <form onSubmit={this.searchTrack.bind(this)} className="songlist_creator--search_form" >
+      <form onSubmit={this.searchTrack.bind(this)} className="playlist_manager--search_form" >
         <label htmlFor="track_search">Search a Song</label>
         <input name="track_search" id="track_search" type="text" size="20" maxLength="50"/>
         <button type="submit">Search</button>
@@ -51,7 +51,7 @@ export default class SpotifyTrackImporter extends Component {
   renderSearchResults(){
     if(this.state.searchResult.length > 0){
       return(
-        <div className="songlist_creator--search_results">
+        <div className="playlist_manager--search_results">
           <TrackList tracks={this.state.searchResult} clickOnTrackAction={this.addTrackToSonglist.bind(this)} withVotes={false}/>
         </div>
       )

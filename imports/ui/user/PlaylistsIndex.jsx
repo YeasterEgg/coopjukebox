@@ -2,12 +2,12 @@ import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
-import SonglistManager from './SonglistManager.jsx'
+import PlaylistManager from './PlaylistManager.jsx'
 import Waiter from '../common/Waiter.jsx'
 
 import { Playlists } from '../../api/playlists.js'
 
-export default class PlaylistsManager extends Component {
+export default class PlaylistsIndex extends Component {
 
   constructor(props){
     super(props)
@@ -23,7 +23,7 @@ export default class PlaylistsManager extends Component {
       )
     }else{
       return(
-        <SonglistManager playlist={this.props.playlists[this.state.currentPlaylistIndex]} user={this.props.user} />
+        <PlaylistManager playlist={this.props.playlists[this.state.currentPlaylistIndex]} user={this.props.user} />
       )
     }
   }
@@ -31,7 +31,7 @@ export default class PlaylistsManager extends Component {
   renderPlaylistIndex(){
     if(this.props.playlists.length > 0){
       return(
-        <div className="playlist_manager--playlist_index">
+        <div className="playlists_index--playlist_index">
           <ul>
           {this.props.playlists.map(function(playlist, index){
             return(
@@ -46,7 +46,7 @@ export default class PlaylistsManager extends Component {
       )
     }else{
       return(
-        <div className="playlist_manager--playlist_index">
+        <div className="playlists_index--playlist_index">
           {this.renderNewPlaylistForm()}
         </div>
       )
@@ -55,16 +55,16 @@ export default class PlaylistsManager extends Component {
 
   renderNewPlaylistForm(){
     return(
-      <form className="playlist_manager--songlist_form" onSubmit={this.createPlaylist.bind(this)} >
-        <div className="playlist_manager--form_part">
+      <form className="playlists_index--songlist_form" onSubmit={this.createPlaylist.bind(this)} >
+        <div className="playlists_index--form_part">
           <label htmlFor="playlist_name">Playlist Name</label>
           <input name="playlist_name" id="playlist_name" type="text" size="20" maxLength="50" pattern="[a-zA-Z0-9- _]+"/>
         </div>
-        <div className="playlist_manager--form_part">
+        <div className="playlists_index--form_part">
           <label htmlFor="playlist_length">Number of Songs</label>
           <input name="playlist_length" id="playlist_length" type="number" size="10" maxLength="3" />
         </div>
-        <div className="playlist_manager--form_part">
+        <div className="playlists_index--form_part">
           <label htmlFor="playlist_duration">Duration of polls (m)</label>
           <input name="playlist_duration" id="playlist_duration" type="number" size="10" maxLength="2" />
         </div>
@@ -108,7 +108,7 @@ export default class PlaylistsManager extends Component {
   }
 }
 
-PlaylistsManager.propTypes = {
+PlaylistsIndex.propTypes = {
   user: PropTypes.object.isRequired,
 }
 
@@ -120,4 +120,4 @@ export default createContainer((props) => {
     playlists: Playlists.find().fetch(),
     subscriptionsReady: playlistsSubscription.ready()
   }
-}, PlaylistsManager)
+}, PlaylistsIndex)
