@@ -10,6 +10,14 @@ getTrackValues = function(track){
   return cleanTrack
 }
 
+randomProperties = function(object, size){
+  keys = Object.keys(object)
+  randomKeys = _.sample(keys, size)
+  result = _.pick(object, randomKeys)
+  return result
+}
+
 module.exports = {
   getTrackValues: getTrackValues,
+  randomProperties: randomProperties,
 }

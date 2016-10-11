@@ -16,8 +16,6 @@ export default class Voter extends Component {
   }
 
   componentWillMount(){
-    // pollsVoted = JSON.parse(localStorage.getItem("songlistVotedFor"))
-    // console.log(pollsVoted)
     // if(!pollsVoted){return null}
     // if(pollsVoted[this.props.poll._id]){
     //   console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
@@ -26,6 +24,7 @@ export default class Voter extends Component {
   }
 
   render(){
+    pollsVoted = JSON.parse(localStorage.getItem("songlistVotedFor"))
     if(!this.props.subscription){
       return(
         <Waiter />
@@ -33,6 +32,10 @@ export default class Voter extends Component {
     }else if(!this.props.poll){
       return(
         <PageNotFound />
+      )
+    }else if(pollsVoted && pollsVoted[this.props.poll._id]){
+      return(
+        <div>{this.renderVotedFor(pollsVoted[this.props.poll._id])}</div>
       )
     }else{
       return(
@@ -43,21 +46,21 @@ export default class Voter extends Component {
 
   renderPage(){
     tracks = Object.values(this.props.poll.availableChoices)
-    if(!this.state.voted){
-      return (
-        <div className="voter--voter_tracklist">
-          <TrackList tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)} withVotes={true}/>
-        </div>
-      )
-    }else{
-      src = "https://embed.spotify.com/?uri=spotify:track:" + this.state.voted
-      return(
-        <div className="voter--voted_container">
-          <div className="voter--voted_title">Now, listen to what you have chosen!</div>
-          <iframe src={src} width="300" height="380" frameBorder="0" allowTransparency="true"></iframe>
-        </div>
-      )
-    }
+    return (
+      <div className="voter--voter_tracklist">
+        <TrackList tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)} withVotes={true}/>
+      </div>
+    )
+  }
+
+  renderVotedFor(track){
+    src = "https://embed.spotify.com/?uri=spotify:track:" + track
+    return(
+      <div className="voter--voted_container">
+        <div className="voter--voted_title">Now, listen to what you have chosen!</div>
+        <iframe src={src} width="300" height="380" frameBorder="0" allowTransparency="true"></iframe>
+      </div>
+    )
   }
 
   addVoteToTrack(track){
@@ -65,9 +68,8 @@ export default class Voter extends Component {
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
         currentVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}
-        currentVoted[this.props.params.playlistLocalName] = track.spotifyId
+        currentVoted[this.props.chosenName] = track.spotifyId
         localStorage.setItem("songlistVotedFor", JSON.stringify(currentVoted))
-        this.setState({voted: track.spotifyId})
       }
     }.bind(this))
   }

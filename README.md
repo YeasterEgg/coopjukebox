@@ -21,7 +21,7 @@ The poll will have 3 main features: playlist length, duration of the vote and po
 
 TO BE FUCKING DONE!
 
-- Hide all info from client, both user and voter, but for songlist random id
 - Export current songlist as array of uris
-- Create more than one playlist
+- Import arrays of uris as songlists :D
 - Retrieve track special data (danceability, etc.)
+- Move poll duration and playlist length (or, better, number of polls) to poll manager
