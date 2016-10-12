@@ -201,7 +201,7 @@ Meteor.methods({
               availableChoices: availableChoices,
               songlist: closingPoll.songlist,
               startedAt: new Date,
-
+              closesAt: new Date(new Date - - winner.duration_ms),
               },
         $inc: {pollsLeft: -1}
       }
