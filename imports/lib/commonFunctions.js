@@ -17,7 +17,15 @@ randomProperties = function(object, size){
   return result
 }
 
+secondsToMinutes = function(totalSeconds){
+  seconds = totalSeconds % 60
+  minutes = Math.floor(totalSeconds / 60)
+  formatted = minutes + ":" + seconds
+  return formatted
+}
+
 module.exports = {
   getTrackValues: getTrackValues,
   randomProperties: randomProperties,
+  secondsToMinutes: secondsToMinutes,
 }

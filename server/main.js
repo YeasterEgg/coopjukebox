@@ -78,7 +78,6 @@ Meteor.methods({
     form = JSON.stringify(_.pick(playlist, ['name', 'public']))
     result = postApiWrapper(url, headers, form)
     if(result.body.error){
-      console.log(result.body)
       return false
     }
 
@@ -97,6 +96,8 @@ Meteor.methods({
       userId: user._id,
       songlist: {},
       startedAt: new Date,
+    }, function(){
+      return true
     })
   },
 
@@ -107,7 +108,6 @@ Meteor.methods({
     headers = {'Authorization': 'Bearer ' + user.token.accessToken }
     result = getApiWrapper(url, headers)
     if(!result.body.error){
-      console.log(result.body)
       songlist = {}
       _.map(result.body.items, function(item){
         parsedTrack = cf.getTrackValues(item.track)
@@ -152,18 +152,17 @@ Meteor.methods({
       return {kind: "error", text: "Fuck you"}
     }
     availableChoices = cf.randomProperties(playlist.songlist,pollSize)
-    now = new Date
     Polls.insert({
       playlistId: playlist._id,
       songlist: playlist.songlist,
       availableChoices: availableChoices,
       votersChoices: {},
       pollSize: parseInt(pollSize),
-      startedAt: now,
+      startedAt: new Date,
       active: true,
       winners: [],
       pollsLeft: parseInt(number),
-      closesAt: new Date(now + 60000 * 5)
+      closesAt: new Date(new Date - - 300000)
     }, function(err,res){
       if(!err){
         Meteor.setTimeout(function(){

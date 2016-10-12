@@ -24,7 +24,7 @@ getTokenFromUser = function(userId){
 
 updateToken = function(user, callback){
   token = user.token
-  expiringDate = new Date(token.validationStart.getTime() + token.expiresIn * 1000)
+  expiringDate = new Date(token.validationStart.getTime() - - token.expiresIn * 1000)
   now = new Date
   if(expiringDate < now){
     url = config.tokenUrl

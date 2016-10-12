@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
+cf = require('../../lib/commonFunctions.js')
 
 export default class CountDown extends Component {
 
@@ -10,23 +11,28 @@ export default class CountDown extends Component {
     }
   }
 
-
-
   componentDidMount(){
-    secondsRemaining = this.props.endingTime - (new Date)
+    Meteor.setInterval(function(){
+      this.decrementSecondsRemaining()
+      return true
+    }.bind(this), 1000)
+  }
+
+  componentWillMount(){
+    secondsRemaining = Math.floor((this.props.endingTime - new Date) / 1000)
     this.setState({secondsRemaining: secondsRemaining})
-    (function(){
-      setInterval(function(){
-        this.setState({secondsRemaining: this.state.secondsRemaining - 1})
-      }.bind(this), 1000)
-    }.bind(this))()
+    return true
+  }
+
+  decrementSecondsRemaining(){
+    this.setState({secondsRemaining: this.state.secondsRemaining - 1})
+    return true
   }
 
   render(){
     return (
       <div className="voter--voter_clock">
-        <span>Time remaining for Vote!</span>
-        <span>{this.state.secondsRemaining}</span>
+        <span>{cf.secondsToMinutes(this.state.secondsRemaining)}</span>
       </div>
     )
   }

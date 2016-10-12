@@ -136,7 +136,7 @@ export default class PlaylistManager extends Component {
   }
 
   setNotice(notice){
-    setTimeout(function(){
+    Meteor.setTimeout(function(){
       this.setState({notice: false})
     }.bind(this), 3000)
     this.setState({notice: notice})

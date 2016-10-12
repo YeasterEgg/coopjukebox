@@ -78,7 +78,7 @@ export default class PlaylistsIndex extends Component {
       if(result){
         document.getElementById("playlist_name").value = ''
       }else{
-        alert(error)
+        console.log(error)
       }
     })
   }

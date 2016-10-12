@@ -51,7 +51,7 @@ export default class Voter extends Component {
     tracks = Object.values(this.props.poll.availableChoices)
     return (
       <div className="voter--voter_container">
-        <CountDown endingTime={this.props.poll} />
+        <CountDown endingTime={this.props.poll.closesAt} />
         <div className="voter--voter_tracklist">
           <TrackList tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)} withVotes={true}/>
         </div>
@@ -76,6 +76,8 @@ export default class Voter extends Component {
         currentVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}
         currentVoted[this.props.chosenName] = track.spotifyId
         localStorage.setItem("songlistVotedFor", JSON.stringify(currentVoted))
+      }else{
+        console.log(error)
       }
     }.bind(this))
   }
