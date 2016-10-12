@@ -20,8 +20,12 @@ randomProperties = function(object, size){
 secondsToMinutes = function(totalSeconds){
   seconds = totalSeconds % 60
   minutes = Math.floor(totalSeconds / 60)
-  formatted = minutes + ":" + seconds
+  formatted = addLeadingZero(minutes) + ":" + addLeadingZero(seconds)
   return formatted
+}
+
+addLeadingZero = function(number){
+  return ("0" + number).slice(-2)
 }
 
 module.exports = {
