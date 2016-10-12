@@ -17,7 +17,6 @@ const playlistAddTrack = function(userSpotifyId, playlistSpotifyId){
   return ("https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists/" + playlistSpotifyId + "/tracks"
 )
 }
-
 const punishmentUris = [
   "spotify:track:6xfs3g7UCu1BJlAnQ13gT3",
 ]
@@ -34,4 +33,5 @@ module.exports = {
   playlistTracksUrl: playlistTracksUrl,
   searchUrl: searchUrl,
   punishmentUris: punishmentUris,
+  playlistAddTrack: playlistAddTrack,
 }
