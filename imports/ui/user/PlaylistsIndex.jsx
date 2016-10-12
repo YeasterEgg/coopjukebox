@@ -19,38 +19,36 @@ export default class PlaylistsIndex extends Component {
   render(){
     if(this.state.currentPlaylistIndex === false){
       return(
-        <div>{this.renderPlaylistIndex()}</div>
+        <div>{this.renderPlaylistSummary()}</div>
       )
     }else{
       return(
-        <PlaylistManager playlist={this.props.playlists[this.state.currentPlaylistIndex]} user={this.props.user} />
+        <PlaylistManager playlist={this.props.playlists[this.state.currentPlaylistIndex]} user={this.props.user} closePlaylist={this.closePlaylist.bind(this)}/>
       )
     }
   }
 
+  renderPlaylistSummary(){
+    return(
+      <div className="playlists_index--container">
+        {this.renderNewPlaylistForm()}
+        {this.renderPlaylistIndex()}
+      </div>
+    )
+  }
+
   renderPlaylistIndex(){
-    if(this.props.playlists.length > 0){
-      return(
-        <div className="playlists_index--playlist_index">
-          <ul>
-          {this.props.playlists.map(function(playlist, index){
-            return(
-              <li key={playlist._id} onClick={function(){this.clickOnPlaylist.bind(this)(index)}.bind(this)}>
-                {"Name: " + playlist.name}
-              </li>
-            )
-          }.bind(this))}
-          </ul>
-          {this.renderNewPlaylistForm()}
-        </div>
-      )
-    }else{
-      return(
-        <div className="playlists_index--playlist_index">
-          {this.renderNewPlaylistForm()}
-        </div>
-      )
-    }
+    return(
+      <div className="playlists_index--playlist_index">
+        {this.props.playlists.map(function(playlist, index){
+          return(
+            <p key={playlist._id} onClick={function(){this.clickOnPlaylist.bind(this)(index)}.bind(this)}>
+              <span>{playlist.name}</span>
+            </p>
+          )
+        }.bind(this))}
+      </div>
+    )
   }
 
   renderNewPlaylistForm(){
@@ -60,15 +58,7 @@ export default class PlaylistsIndex extends Component {
           <label htmlFor="playlist_name">Playlist Name</label>
           <input name="playlist_name" id="playlist_name" type="text" size="20" maxLength="50" pattern="[a-zA-Z0-9- _]+"/>
         </div>
-        <div className="playlists_index--form_part">
-          <label htmlFor="playlist_length">Number of Songs</label>
-          <input name="playlist_length" id="playlist_length" type="number" size="10" maxLength="3" />
-        </div>
-        <div className="playlists_index--form_part">
-          <label htmlFor="playlist_duration">Duration of polls (m)</label>
-          <input name="playlist_duration" id="playlist_duration" type="number" size="10" maxLength="2" />
-        </div>
-        <button type="submit">Create playlist</button>
+        <button type="submit" className="button-round pure-button">Create playlist</button>
       </form>
     )
   }
@@ -76,35 +66,29 @@ export default class PlaylistsIndex extends Component {
   createPlaylist(event){
     event.preventDefault()
     name = document.getElementById("playlist_name").value
-    length = document.getElementById("playlist_length").value
-    duration = document.getElementById("playlist_duration").value
-    if(!name || !length || !duration){
+    if(!name){
       alert("Please complete all the fields!")
-      return null
-    }else if(length < 1 || duration < 1){
-      alert("Please use valid choiches!")
       return null
     }
     playlist =  {
       "name": name,
-      "length": parseInt(length),
-      "duration": parseInt(duration),
       "public": true
     }
     Meteor.call("playlists.create", this.props.user, playlist, function(error, result){
       if(result){
-        console.log("SonglistCreated!")
         document.getElementById("playlist_name").value = ''
-        document.getElementById("playlist_length").value = ''
-        document.getElementById("playlist_duration").value = ''
       }else{
-        console.log(error)
+        alert(error)
       }
     })
   }
 
   clickOnPlaylist(index){
     this.setState({currentPlaylistIndex: index})
+  }
+
+  closePlaylist(){
+    this.setState({currentPlaylistIndex: false})
   }
 }
 

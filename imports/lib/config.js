@@ -13,6 +13,14 @@ const playlistUrl = function(userSpotifyId){
 const playlistTracksUrl = function(userSpotifyId, playlistSpotifyId){
   return ("https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists/" + playlistSpotifyId + "/tracks?limit=100")
 }
+const playlistAddTrack = function(userSpotifyId, playlistSpotifyId){
+  return ("https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists/" + playlistSpotifyId + "/tracks"
+)
+}
+
+const punishmentUris = [
+  "spotify:track:6xfs3g7UCu1BJlAnQ13gT3",
+]
 
 module.exports = {
   clientId: clientId,
@@ -25,4 +33,5 @@ module.exports = {
   playlistUrl: playlistUrl,
   playlistTracksUrl: playlistTracksUrl,
   searchUrl: searchUrl,
+  punishmentUris: punishmentUris,
 }

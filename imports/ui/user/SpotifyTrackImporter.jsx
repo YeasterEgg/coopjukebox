@@ -68,7 +68,7 @@ export default class SpotifyTrackImporter extends Component {
     importedPlaylistSpotifyId = uri[4]
     Meteor.call("playlist.importPlaylist", importedPlaylistSpotifyId, importedUserId, this.props.playlist, function(error, result){
       tracksNo = result.items.length
-      this.props.setPositiveNotice("Imported " + tracksNo + " songs from playlist!")
+      this.props.setNotice({text: "Imported " + tracksNo + " songs from playlist!", kind: "success"})
       document.getElementById('playlist_id').value = ''
     }.bind(this))
   }
@@ -102,7 +102,7 @@ export default class SpotifyTrackImporter extends Component {
     Meteor.call("playlist.addTrackToSonglist", playlist, track, function(error, result){
       if(!error && result){
         this.setState({searchResult: []})
-        this.props.setPositiveNotice("Added " + track.name + " to Songlist!")
+        this.props.setNotice({text: "Added " + track.name + " to Songlist!", kind: "success"})
       }
     }.bind(this))
   }

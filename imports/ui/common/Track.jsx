@@ -34,7 +34,6 @@ export default class Track extends Component {
       return null
     }
   }
-
 }
 
 Track.propTypes = {

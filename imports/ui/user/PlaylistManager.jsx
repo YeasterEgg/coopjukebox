@@ -20,31 +20,31 @@ export default class PlaylistManager extends Component {
     super(props)
     this.state = {
       searchResult: [],
-      positiveNotice: false,
+      notice: false,
     }
   }
 
   render(){
     return (
       <div className="playlist_manager--container">
-        <div className="playlist_manager--close_songlist">X</div>
+        <div className="playlist_manager--close_songlist" onClick={this.props.closePlaylist.bind(this)}>X</div>
         <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionEnterTimeout={500} transitionLeaveTimeout={500}>
-          {this.renderPositiveNotice()}
+          {this.renderNotice()}
         </ReactCSSTransitionGroup>
         <SpotifyHeader playlist={this.props.playlist} />
         {this.renderPollCommands()}
         <div className="playlist_manager--songlist_container">
-          <SpotifyTrackImporter playlist={this.props.playlist} setPositiveNotice={this.setPositiveNotice.bind(this)}/>
+          <SpotifyTrackImporter playlist={this.props.playlist} setNotice={this.setNotice.bind(this)}/>
           {this.renderSonglist()}
         </div>
       </div>
     )
   }
 
-  renderPositiveNotice(){
-    if(this.state.positiveNotice){
+  renderNotice(){
+    if(this.state.notice){
       return(
-        <div className="playlist_manager--track_added_notice button-success">{this.state.positiveNotice}</div>
+        <div className={"playlist_manager--track_added_notice button-" + this.state.notice.kind}>{this.state.notice.text}</div>
       )
     }else{
       return null
@@ -61,7 +61,17 @@ export default class PlaylistManager extends Component {
       )
     }else{
       return(
-        <button type="submit" className="playlist_manager--start_poll button-round pure-button pure-button-primary" onClick={this.startVoting.bind(this)}>Start Voting!</button>
+        <div className="playlist_manager--poll">
+          <div className="playlist_manager--form_part">
+            <label htmlFor="poll_size">Poll Size</label>
+            <input name="poll_size" id="poll_size" type="number" size="20" maxLength="3" min="2" max="6" step="1" defaultValue="2"/>
+          </div>
+          <div className="playlist_manager--form_part">
+            <label htmlFor="poll_number">Number of consecutive Polls</label>
+            <input name="poll_number" id="poll_number" type="number" size="20" maxLength="3" min="2" max="12" step="1" defaultValue="2"/>
+          </div>
+          <button type="submit" className="playlist_manager--start_poll button-round pure-button pure-button-primary" onClick={this.startVoting.bind(this)}>Start Voting!</button>
+        </div>
       )
     }
   }
@@ -107,9 +117,12 @@ export default class PlaylistManager extends Component {
   }
 
   startVoting(){
-    Meteor.call("poll.startPoll", this.props.playlist, function(error, result){
+    size = document.getElementById("poll_size").value
+    number = document.getElementById("poll_number").value
+    console.log('nope!')
+    Meteor.call("poll.startPoll", this.props.playlist, size, number, function(error, result){
       if(result){
-        this.setPositiveNotice("Voting started! Yahoo Democracy!")
+        this.setNotice(result)
       }
     }.bind(this))
   }
@@ -117,16 +130,16 @@ export default class PlaylistManager extends Component {
   removeFromSonglist(track){
     Meteor.call("playlist.removeTrackFromSonglist", this.props.playlist, track, function(error, result){
       if(result){
-        this.setPositiveNotice("Removed " + track.name + "!")
+        this.setNotice({text: "Removed " + track.name + "!", kind: "success"})
       }
     }.bind(this))
   }
 
-  setPositiveNotice(notice){
+  setNotice(notice){
     setTimeout(function(){
-      this.setState({positiveNotice: false})
+      this.setState({notice: false})
     }.bind(this), 3000)
-    this.setState({"positiveNotice": notice})
+    this.setState({notice: notice})
   }
 }
 

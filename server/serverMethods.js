@@ -22,7 +22,7 @@ getTokenFromUser = function(userId){
   }
 }
 
-updateToken = function(user){
+updateToken = function(user, callback){
   token = user.token
   expiringDate = new Date(token.validationStart.getTime() + token.expiresIn * 1000)
   now = new Date
@@ -42,6 +42,8 @@ updateToken = function(user){
               scope: newTokenResponse.body.scope,
               validationStart: now,
             }
-    LoggedUsers.update({_id: user._id}, {$set: {token: token } } )
+    LoggedUsers.update({_id: user._id}, {$set: {token: token } }, callback)
+  }else{
+    callback()
   }
 }

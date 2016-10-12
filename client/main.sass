@@ -14,6 +14,21 @@ body
 
 // Creator
 
+.playlists_index--container
+  margin: auto
+  width: 60%
+  text-align: center
+  padding-top: 40px
+
+  .playlists_index--form_part
+    padding: 10px
+
+  .playlists_index--playlist_index p span
+    cursor: pointer
+    font-size: 1.2em
+    font-weight: 900
+    text-decoration: underline
+
 .playlist_manager--container
   position: relative
 
@@ -57,8 +72,9 @@ body
           right: -15px
 
   .playlist_manager--track_added_notice
-    position: absolute
+    position: fixed
     left: 50%
+    top: 20%
     transform: translateX(-50%)
     padding: 18px
     border: 2px solid black
@@ -69,6 +85,8 @@ body
     position: absolute
     top: 0%
     right: 0%
+    font-size: 40px
+    cursor: pointer
 
 // Tracklist
 
@@ -104,6 +122,14 @@ body
 
     .tracklist--track_votes
 
+// Voter
+
+.voter--voter_container
+  .tracklist--track_cell
+    width: 100%
+    height: 25%
+    text-align: center
+    margin: 0.5% 10%
 
 // Loader
 

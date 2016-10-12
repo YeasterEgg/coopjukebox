@@ -1,9 +1,12 @@
 import React, { Component, PropTypes } from 'react'
 import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
+
 import TrackList from '../common/TrackList.jsx'
 import Waiter from '../common/Waiter.jsx'
+import CountDown from './CountDown.jsx'
 import PageNotFound from '../common/PageNotFound.jsx'
+
 import { Polls } from '../../api/polls.js'
 
 export default class Voter extends Component {
@@ -47,8 +50,11 @@ export default class Voter extends Component {
   renderPage(){
     tracks = Object.values(this.props.poll.availableChoices)
     return (
-      <div className="voter--voter_tracklist">
-        <TrackList tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)} withVotes={true}/>
+      <div className="voter--voter_container">
+        <CountDown endingTime={this.props.poll} />
+        <div className="voter--voter_tracklist">
+          <TrackList tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)} withVotes={true}/>
+        </div>
       </div>
     )
   }
@@ -56,8 +62,8 @@ export default class Voter extends Component {
   renderVotedFor(track){
     src = "https://embed.spotify.com/?uri=spotify:track:" + track
     return(
-      <div className="voter--voted_container">
-        <div className="voter--voted_title">Now, listen to what you have chosen!</div>
+      <div className="voter--voter_container">
+        <div className="voter--voter_title">Now, listen to what you have chosen!</div>
         <iframe src={src} width="300" height="380" frameBorder="0" allowTransparency="true"></iframe>
       </div>
     )
