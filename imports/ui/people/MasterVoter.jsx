@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom'
 import Waiter from '../common/Waiter.jsx'
 import PageNotFound from '../common/PageNotFound.jsx'
 import Voter from './Voter.jsx'
+import CountDown from './CountDown.jsx'
 
 import { Polls } from '../../api/polls.js'
 
@@ -21,7 +22,10 @@ export default class MasterVoter extends Component {
       )
     }else{
       return(
-        <Voter poll={this.props.poll} />
+        <div>
+          <CountDown endingTime={this.props.poll.closesAt} />
+          <Voter poll={this.props.poll} />
+        </div>
       )
     }
   }

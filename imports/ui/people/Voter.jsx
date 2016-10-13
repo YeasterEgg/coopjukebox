@@ -1,8 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 
-import TrackList from '../common/TrackList.jsx'
-import CountDown from './CountDown.jsx'
 import VoterVote from './VoterVote.jsx'
 import VoterPropose from './VoterPropose.jsx'
 
@@ -15,6 +13,17 @@ export default class Voter extends Component {
     this.state = {
       voted: false,
       action: false,
+    }
+  }
+
+  componentWillReceiveProps(nextProps){
+    if(!localStorage.pollsVoted){
+      this.setState({voted: false})
+    }
+    pollsVoted = JSON.parse(localStorage.pollsVoted)
+    pollUniqId = nextProps.poll._id + "_" + nextProps.poll.pollsLeft
+    if(!pollsVoted[pollUniqId]){
+      this.setState({voted: false})
     }
   }
 
@@ -45,7 +54,6 @@ export default class Voter extends Component {
   renderPage(){
     return (
       <div className="voter--voter_container">
-        <CountDown endingTime={this.props.poll.closesAt} />
         {this.renderContent()}
       </div>
     )
@@ -75,7 +83,6 @@ export default class Voter extends Component {
     src = config.embeddedTrackUrl + track
     return(
       <div className="voter--voter_container">
-        <CountDown endingTime={this.props.poll.closesAt} />
         <div className="voter--voter_title">Now, listen to what you have chosen!</div>
         <iframe src={src} width="300" height="380" frameBorder="0" allowTransparency="true"></iframe>
       </div>
