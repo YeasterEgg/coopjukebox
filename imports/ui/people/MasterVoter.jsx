@@ -22,7 +22,7 @@ export default class MasterVoter extends Component {
       )
     }else{
       return(
-        <div>
+        <div className="voter--voter_container">
           <CountDown endingTime={this.props.poll.closesAt} />
           <Voter poll={this.props.poll} />
         </div>

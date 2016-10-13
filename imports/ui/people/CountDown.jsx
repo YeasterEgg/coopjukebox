@@ -12,10 +12,14 @@ export default class CountDown extends Component {
   }
 
   componentDidMount(){
-    Meteor.setInterval(function(){
+    countDown = Meteor.setInterval(function(){
       this.decrementSecondsRemaining()
       return true
     }.bind(this), 1000)
+  }
+
+  componentWillUnmount(){
+    clearInterval(countDown)
   }
 
   componentWillMount(){

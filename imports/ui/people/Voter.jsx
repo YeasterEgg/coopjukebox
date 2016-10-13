@@ -53,7 +53,7 @@ export default class Voter extends Component {
 
   renderPage(){
     return (
-      <div className="voter--voter_container">
+      <div>
         {this.renderContent()}
       </div>
     )
@@ -82,7 +82,7 @@ export default class Voter extends Component {
   renderVotedFor(track){
     src = config.embeddedTrackUrl + track
     return(
-      <div className="voter--voter_container">
+      <div>
         <div className="voter--voter_title">Now, listen to what you have chosen!</div>
         <iframe src={src} width="300" height="380" frameBorder="0" allowTransparency="true"></iframe>
       </div>

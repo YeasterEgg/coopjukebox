@@ -6,7 +6,7 @@ export default class VoterPropose extends Component {
   render(){
     return(
       <div className="voter--voter_searchlist">
-        <TrackSearcher clickOnTrackAction={this.props.clickOnTrackAction.bind(this)} limit="8"/>
+        <TrackSearcher clickOnTrackAction={this.props.clickOnTrackAction.bind(this)} limit="10"/>
       </div>
     )
   }
