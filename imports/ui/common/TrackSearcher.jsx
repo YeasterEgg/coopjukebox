@@ -48,11 +48,8 @@ export default class TrackSearcher extends Component {
   }
 
   clickOnTrackAndClear(track){
-    if(this.props.clickOnTrackAction(track)){
-      this.setState({searchResult: []})
-    }else{
-      console.log('Some error has occurred, sry amigo.')
-    }
+    this.props.clickOnTrackAction(track)
+    this.setState({searchResult: []})
   }
 
   searchTrack(event){

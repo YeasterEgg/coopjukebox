@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react'
 import { render } from 'react-dom'
 import { browserHistory, Router, Route, Link } from 'react-router'
 
-import Voter from './people/Voter.jsx'
+import MasterVoter from './people/MasterVoter.jsx'
 
 import MasterController from './user/MasterController.jsx'
 import Callback from './user/Callback.jsx'
@@ -15,7 +15,7 @@ export default class AppRouter extends Component {
       <Router history={browserHistory}>
         <Route path="/" component={MasterController} />
         <Route path="/callback" component={Callback} />
-        <Route path="/:chosenName" component={Voter} />
+        <Route path="/:chosenName" component={MasterVoter} />
         <Route path="/404" component={PageNotFound} />
       </Router>
     )

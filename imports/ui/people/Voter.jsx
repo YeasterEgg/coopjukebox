@@ -1,16 +1,12 @@
 import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
 
 import TrackList from '../common/TrackList.jsx'
-import Waiter from '../common/Waiter.jsx'
 import CountDown from './CountDown.jsx'
 import VoterVote from './VoterVote.jsx'
 import VoterPropose from './VoterPropose.jsx'
-import PageNotFound from '../common/PageNotFound.jsx'
-import TrackSearcher from '../common/TrackSearcher.jsx'
 
-import { Polls } from '../../api/polls.js'
+config = require('../../lib/config.js')
 
 export default class Voter extends Component {
 
@@ -22,12 +18,11 @@ export default class Voter extends Component {
     }
   }
 
-  checkIfVoted(){
+  componentWillMount(){
+    if(!localStorage.pollsVoted) return false
+    pollsVoted = JSON.parse(localStorage.pollsVoted)
     pollUniqId = this.props.poll._id + "_" + this.props.poll.pollsLeft
-    pollsVoted = JSON.parse(localStorage.songlistVotedFor)
-    if(!pollsVoted){return false}
     if(pollsVoted[pollUniqId]){
-      console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
       this.setState({voted: pollsVoted[pollUniqId]})
       return true
     }else{
@@ -36,19 +31,9 @@ export default class Voter extends Component {
   }
 
   render(){
-    pollsVoted = JSON.parse(localStorage.songlistVotedFor)
-    pollUniqId = this.props.poll._id + "_" + this.props.poll.pollsLeft
-    if(!this.props.subscription){
+    if(this.state.voted){
       return(
-        <Waiter />
-      )
-    }else if(!this.props.poll){
-      return(
-        <PageNotFound />
-      )
-    }else if(this.checkIfVoted.bind(this)){
-      return(
-        <div>{this.renderVotedFor(pollsVoted[pollUniqId])}</div>
+        <div>{this.renderVotedFor(this.state.voted)}</div>
       )
     }else{
       return(
@@ -87,9 +72,10 @@ export default class Voter extends Component {
   }
 
   renderVotedFor(track){
-    src = "https://embed.spotify.com/?uri=spotify:track:" + track
+    src = config.embeddedTrackUrl + track
     return(
       <div className="voter--voter_container">
+        <CountDown endingTime={this.props.poll.closesAt} />
         <div className="voter--voter_title">Now, listen to what you have chosen!</div>
         <iframe src={src} width="300" height="380" frameBorder="0" allowTransparency="true"></iframe>
       </div>
@@ -100,7 +86,7 @@ export default class Voter extends Component {
     Meteor.call("poll.addVoteToTrack", this.props.poll, track, function(error, result){
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
-        this.setPollAsVoted(track).bind(this)
+        this.setPollAsVoted(track)
       }else{
         console.log(error)
       }
@@ -111,31 +97,21 @@ export default class Voter extends Component {
     Meteor.call("poll.addTrackToVoterChoices", this.props.poll, track, function(error, result){
       if(!error){
         console.log("Thanks for your choice.")
-        this.setPollAsVoted(track).bind(this)
+        this.setPollAsVoted(track)
         return true
       }
     }.bind(this))
   }
 
   setPollAsVoted(track){
-    console.log(track)
-    console.log(this)
     pollUniqId = this.props.poll._id + "_" + this.props.poll.pollsLeft
-    alreadyVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}
-    alreadyVoted[pollUniqId] = track.spotifyId
-    localStorage.setItem("songlistVotedFor", JSON.stringify(alreadyVoted))
+    if(localStorage.pollsVoted){
+      pollsVoted = JSON.parse(localStorage.pollsVoted)
+    }else{
+      pollsVoted = {}
+    }
+    pollsVoted[pollUniqId] = track.spotifyId
+    localStorage.pollsVoted = JSON.stringify(pollsVoted)
     this.setState({voted: track.spotifyId})
   }
 }
-
-export default createContainer((props) => {
-
-  const pollSubscription = Meteor.subscribe('polls.fromChosenName', props.chosenName)
-
-  return {
-    poll: Polls.findOne(),
-    subscription: pollSubscription.ready()
-  }
-}, Voter)
-
-
