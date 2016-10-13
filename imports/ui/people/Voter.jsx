@@ -22,12 +22,16 @@ export default class Voter extends Component {
     }
   }
 
-  componentWillMount(){
-    // if(!pollsVoted){return null}
-    // if(pollsVoted[this.props.poll._id]){
-    //   console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
-    //   this.setState({voted: pollsVoted[this.props.poll._id]})
-    // }
+  checkIfVoted(){
+    pollUniqId = this.props.poll._id + "_" + this.props.poll.pollsLeft
+    if(!localStorage.songlistVotedFor){return false}
+    if(localStorage.songlistVotedFor[pollUniqId]){
+      console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
+      this.setState({voted: localStorage.songlistVotedFor[pollUniqId]})
+      return true
+    }else{
+      return false
+    }
   }
 
   render(){
@@ -40,7 +44,7 @@ export default class Voter extends Component {
       return(
         <PageNotFound />
       )
-    }else if(pollsVoted && pollsVoted[this.props.poll._id]){
+    }else if(this.checkIfVoted.bind(this)){
       return(
         <div>{this.renderVotedFor(pollsVoted[this.props.poll._id])}</div>
       )
@@ -94,9 +98,7 @@ export default class Voter extends Component {
     Meteor.call("poll.addVoteToTrack", this.props.poll, track, function(error, result){
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
-        currentVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}
-        currentVoted[this.props.chosenName] = track.spotifyId
-        localStorage.setItem("songlistVotedFor", JSON.stringify(currentVoted))
+        this.setPollAsVoted(track).bind(this)
       }else{
         console.log(error)
       }
@@ -107,9 +109,20 @@ export default class Voter extends Component {
     Meteor.call("poll.addTrackToVoterChoices", this.props.poll, track, function(error, result){
       if(!error){
         console.log("Thanks for your choice.")
+        this.setPollAsVoted(track).bind(this)
         return true
       }
-    })
+    }.bind(this))
+  }
+
+  setPollAsVoted(track){
+    console.log(track)
+    console.log(this)
+    pollUniqId = this.props.poll._id + "_" + this.props.poll.pollsLeft
+    alreadyVoted = JSON.parse(localStorage.getItem("songlistVotedFor")) || {}
+    alreadyVoted[pollUniqId] = track.spotifyId
+    localStorage.setItem("songlistVotedFor", JSON.stringify(alreadyVoted))
+    this.setState({voted: track.spotifyId})
   }
 }
 
