@@ -33,10 +33,7 @@ export default class PlaylistManager extends Component {
         </ReactCSSTransitionGroup>
         <SpotifyHeader playlist={this.props.playlist} />
         {this.renderPollCommands()}
-        <div className="playlist_manager--songlist_container">
-          <SpotifyTrackImporter playlist={this.props.playlist} setNotice={this.setNotice.bind(this)}/>
-          {this.renderSonglist()}
-        </div>
+        {this.renderSonglistCommands()}
       </div>
     )
   }
@@ -51,12 +48,28 @@ export default class PlaylistManager extends Component {
     }
   }
 
+  renderSonglistCommands(){
+    if(!this.props.poll){
+      return(
+        <div className="playlist_manager--songlist_container">
+          <SpotifyTrackImporter playlist={this.props.playlist} setNotice={this.setNotice.bind(this)}/>
+          {this.renderSonglist()}
+        </div>
+      )
+    }else{
+      return null
+    }
+  }
+
   renderPollCommands(){
     if(this.props.poll){
       return(
         <div className="playlist_manager--poll">
           <button type="submit" className="playlist_manager--start_poll button-round pure-button button-error pure-button-disabled" onClick={function(){console.log('Active Polls!')}} disabled>There are polls still ongoing!</button>
           {this.renderPollStatus()}
+          <div className="playlist_manager--chosen_container">
+            {this.renderTracksChosen()}
+          </div>
         </div>
       )
     }else{
@@ -101,6 +114,25 @@ export default class PlaylistManager extends Component {
               <div className="playlist_manager--songlist_track" key={track.spotifyId}>
                 <span className="playlist_manager--songlist_track_name">{track.name}</span>
                 <span className="playlist_manager--songlist_track_delete" onClick={function(){this.removeFromSonglist(track)}.bind(this)}>X</span>
+              </div>
+            )
+          }.bind(this))}
+        </div>
+      </div>
+    )
+  }
+
+  renderTracksChosen(){
+    return(
+      <div className="playlist_manager--chosen_container">
+        <div className="playlist_manager--chosen_container_title">
+          <span>Tracks Added by Users</span>
+        </div>
+        <div className="playlist_manager--chosen_container_songlist">
+          {Object.values(this.props.poll.votersChoices).map(function(track){
+            return(
+              <div className="playlist_manager--chosen_track" key={track.spotifyId}>
+                <span className="playlist_manager--chosen_track_name">{track.name}</span>
               </div>
             )
           }.bind(this))}

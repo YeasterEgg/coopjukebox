@@ -32,7 +32,7 @@
     margin: auto
 
   .playlist_manager--songlist_container
-    width: 70%
+    width: 80%
     margin: 10px auto
     text-align: center
     padding: 10px
@@ -41,7 +41,7 @@
     .playlist_manager--songlist_export
       float: right
     .playlist_manager--songlist_container_songlist
-      height: 150px
+      height: 300px
       overflow-y: scroll
       border: 4px solid black
       .playlist_manager--songlist_track
@@ -73,3 +73,26 @@
     right: 0%
     font-size: 40px
     cursor: pointer
+
+  .playlist_manager--chosen_container
+    width: 80%
+    margin: 10px auto
+    text-align: center
+    padding: 10px
+    .playlist_manager--chosen_container_title
+      font-weight: 900
+    .playlist_manager--chosen_export
+      float: right
+    .playlist_manager--chosen_container_songlist
+      height: 300px
+      overflow-y: scroll
+      border: 4px solid black
+      .playlist_manager--chosen_track
+        position: relative
+        width: 100%
+        overflow-x: hidden
+        margin: auto
+        .playlist_manager--chosen_track_name
+          width: 100%
+          overflow-x: hidden
+          white-space: nowrap

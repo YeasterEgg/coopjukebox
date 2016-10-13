@@ -31,7 +31,7 @@ export default class CountDown extends Component {
 
   render(){
     return (
-      <div className="voter--voter_clock">
+      <div className="countdown--clock">
         <span>{cf.secondsToMinutes(this.state.secondsRemaining)}</span>
       </div>
     )
