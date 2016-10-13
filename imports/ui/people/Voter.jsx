@@ -83,22 +83,23 @@ export default class Voter extends Component {
   }
 
   addVoteToTrack(track){
+    this.setPollAsVoted(track)
     Meteor.call("poll.addVoteToTrack", this.props.poll, track, function(error, result){
       if(!error){
         console.log("Thanks for your game-changing vote, subhuman.")
-        this.setPollAsVoted(track)
       }else{
-        console.log(error)
+        // this.setState({voted: false})
       }
     }.bind(this))
   }
 
   addTrackToVoterChoices(track){
+    this.setPollAsVoted(track)
     Meteor.call("poll.addTrackToVoterChoices", this.props.poll, track, function(error, result){
       if(!error){
         console.log("Thanks for your choice.")
-        this.setPollAsVoted(track)
-        return true
+      }else{
+        // this.setState({voted: false})
       }
     }.bind(this))
   }

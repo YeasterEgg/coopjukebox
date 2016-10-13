@@ -195,6 +195,7 @@ Meteor.methods({
     Meteor.call('playlist.addTrackToPlaylist', playlist, winnerUri)
     if(closingPoll.pollsLeft > 0){
       delete closingPoll.songlist["track_" + winner.spotifyId]
+      delete closingPoll.votersChoices["track_" + winner.spotifyId]
       nTracksFromVoters = Math.ceil(closingPoll.pollSize / 2)
       tracksFromVoters = cf.randomProperties(closingPoll.votersChoices, nTracksFromVoters)
 
