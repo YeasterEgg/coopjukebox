@@ -24,10 +24,11 @@ export default class Voter extends Component {
 
   checkIfVoted(){
     pollUniqId = this.props.poll._id + "_" + this.props.poll.pollsLeft
-    if(!localStorage.songlistVotedFor){return false}
-    if(localStorage.songlistVotedFor[pollUniqId]){
+    pollsVoted = JSON.parse(localStorage.songlistVotedFor)
+    if(!pollsVoted){return false}
+    if(pollsVoted[pollUniqId]){
       console.log('Hey you, your worthless choice has already been made, you\'re outliving your usefulness!')
-      this.setState({voted: localStorage.songlistVotedFor[pollUniqId]})
+      this.setState({voted: pollsVoted[pollUniqId]})
       return true
     }else{
       return false
@@ -35,7 +36,8 @@ export default class Voter extends Component {
   }
 
   render(){
-    pollsVoted = JSON.parse(localStorage.getItem("songlistVotedFor"))
+    pollsVoted = JSON.parse(localStorage.songlistVotedFor)
+    pollUniqId = this.props.poll._id + "_" + this.props.poll.pollsLeft
     if(!this.props.subscription){
       return(
         <Waiter />
@@ -46,7 +48,7 @@ export default class Voter extends Component {
       )
     }else if(this.checkIfVoted.bind(this)){
       return(
-        <div>{this.renderVotedFor(pollsVoted[this.props.poll._id])}</div>
+        <div>{this.renderVotedFor(pollsVoted[pollUniqId])}</div>
       )
     }else{
       return(
