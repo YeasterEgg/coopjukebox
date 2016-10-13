@@ -1,0 +1,72 @@
+.voter--voter_container
+  height: 98vh
+  margin: 1vh black solid
+  width: 98vw
+
+  .voter--buttons
+    .voter--button
+      width: 80vw
+      height: 40vh
+      margin: 5vh 10vw
+      box-sizing: border-box
+      font-size: 10vw
+      background-image: radial-gradient(#918e82, #315481)
+
+  .voter--voter_clock
+    position: fixed
+    top: 0px
+    right: 0px
+    font-weight: 800
+
+  .voter--voter_searchlist
+    width: 100%
+    margin: auto
+    text-align: center
+
+    .track_searcher--search_form *
+      display: block
+      margin: auto
+
+    .tracklist--track_cell
+      width: 45vw
+      height: 22vw
+      box-sizing: border-box
+      margin: 1vh auto
+      display: flex
+      flex-direction: column
+      text-align: center
+      justify-content: space-around
+
+  .voter--voter_tracklist
+
+    .tracklist--track_cell
+      width: 90vw
+      text-align: center
+      margin: 1vh auto
+      &.tracklist--track_cell_2
+        height: 45vh
+        .tracklist--track_title
+          font-size: 5vh
+        .tracklist--track_info
+          font-size: 3.5vh
+
+      &.tracklist--track_cell_3
+        height: 30vh
+        .tracklist--track_title
+          font-size: 4vh
+        .tracklist--track_info
+          font-size: 2.5vh
+
+      &.tracklist--track_cell_4
+        height: 22vh
+        .tracklist--track_title
+          font-size: 3vh
+        .tracklist--track_info
+          font-size: 1.5vh
+
+      &.tracklist--track_cell_5
+        height: 18vh
+
+      &.tracklist--track_cell_6
+        height: 16vh
+

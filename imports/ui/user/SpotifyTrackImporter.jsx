@@ -1,9 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { createContainer } from 'meteor/react-meteor-data'
 
-import TrackList from '../common/TrackList.jsx'
-import { Polls } from '../../api/polls.js'
+import TrackSearcher from '../common/TrackSearcher.jsx'
 
 cf = require('../../lib/commonFunctions.js')
 config = require('../../lib/config.js')
@@ -11,19 +9,11 @@ querystring = require('querystring')
 
 export default class SpotifyTrackImporter extends Component {
 
-  constructor(props){
-    super(props)
-    this.state = {
-      searchResult: [],
-    }
-  }
-
   render(){
     return (
       <div>
         {this.renderImportPlaylistButton()}
-        {this.renderSearchForm()}
-        {this.renderSearchResults()}
+        <TrackSearcher clickOnTrackAction={this.addTrackToSonglist.bind(this)} limit="30" />
       </div>
     )
   }
@@ -36,28 +26,6 @@ export default class SpotifyTrackImporter extends Component {
         <button type="submit">Import Playlist</button>
       </form>
     )
-  }
-
-  renderSearchForm(){
-    return(
-      <form onSubmit={this.searchTrack.bind(this)} className="playlist_manager--search_form" >
-        <label htmlFor="track_search">Search a Song</label>
-        <input name="track_search" id="track_search" type="text" size="20" maxLength="50"/>
-        <button type="submit">Search</button>
-      </form>
-    )
-  }
-
-  renderSearchResults(){
-    if(this.state.searchResult.length > 0){
-      return(
-        <div className="playlist_manager--search_results">
-          <TrackList tracks={this.state.searchResult} clickOnTrackAction={this.addTrackToSonglist.bind(this)} withVotes={false}/>
-        </div>
-      )
-    }else{
-      return null
-    }
   }
 
   importPlaylist(event){
@@ -73,36 +41,12 @@ export default class SpotifyTrackImporter extends Component {
     }.bind(this))
   }
 
-  searchTrack(event){
-    event.preventDefault()
-    if(document.getElementById('track_search').value.length > 3){
-      params = {
-        q: document.getElementById('track_search').value,
-        type: "track"
-      }
-      url = config.searchUrl + querystring.stringify(params)
-      xhr = new XMLHttpRequest()
-      xhr.open('GET', url, true)
-      xhr.onload = function (event){
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          searchResult = JSON.parse(xhr.responseText).tracks.items
-          tracks = _.map(searchResult, function(track){
-            return cf.getTrackValues(track)
-          })
-          this.setState({searchResult: tracks})
-          document.getElementById('track_search').value = ''
-        }
-      }.bind(this)
-      xhr.send(null)
-    }
-  }
-
   addTrackToSonglist(track){
     playlist = this.props.playlist
     Meteor.call("playlist.addTrackToSonglist", playlist, track, function(error, result){
       if(!error && result){
-        this.setState({searchResult: []})
         this.props.setNotice({text: "Added " + track.name + " to Songlist!", kind: "success"})
+        return true
       }
     }.bind(this))
   }

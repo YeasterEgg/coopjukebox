@@ -1,0 +1,74 @@
+// Tracklist
+
+.tracklist--tracklist_container
+  width: 100%
+  margin: auto
+  display: flex
+  flex-wrap: wrap
+
+  .tracklist--track_cell
+    background-image: linear-gradient(to bottom, #918e82, #315481 100%)
+    border: 1px black solid
+    border-radius: 10px
+    width: 24%
+    height: 80px
+    box-sizing: border-box
+    margin: 0.5%
+    display: flex
+    flex-direction: column
+    justify-content: space-around
+
+    div
+      overflow-x: hidden
+      color: white
+
+    .tracklist--track_title
+      font-weight: 800
+
+    .tracklist--track_duration
+      font-size: 0.8em
+
+    .tracklist--track_artist
+
+    .tracklist--track_votes
+
+// Loader
+
+.loader--dots
+  color: #fff
+  font-family: monospace
+  font-weight: bold
+  font-size: 30vh
+  opacity: 0.8
+  text-align: center
+.loader--dots span
+  display: inline-block
+  animation: pulse 0.6s alternate infinite ease-in-out
+.loader--dots span:nth-child(2)
+  animation-delay: 0.2s
+.loader--dots span:nth-child(3)
+  animation-delay: 0.4s
+@keyframes pulse
+  to
+    transform: scale(0.6)
+    opacity: 0.5
+
+.loader--no_commander
+  color: #fff
+  font-family: monospace
+  font-weight: bold
+  font-size: 7vh
+  opacity: 0.8
+  text-align: center
+
+.loader--container
+  padding-top: 15%
+
+.loader--info
+  position: absolute
+  top: 0px
+  right: 0px
+  color: #fff
+  font-weight: bold
+  font-size: 7vh
+  opacity: 0.8

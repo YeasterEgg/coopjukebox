@@ -1,0 +1,75 @@
+// User
+
+.playlists_index--container
+  margin: auto
+  width: 60%
+  text-align: center
+  padding-top: 40px
+
+  .playlists_index--form_part
+    padding: 10px
+
+  .playlists_index--playlist_index p span
+    cursor: pointer
+    font-size: 1.2em
+    font-weight: 900
+    text-decoration: underline
+
+.playlist_manager--container
+  position: relative
+
+  .playlist_manager--spotify_header
+    width: 80%
+    margin: auto
+    text-align: center
+    padding-bottom: 25px
+    padding-top: 10px
+    .playlist_manager--playlist_link
+      padding-bottom: 15px
+
+  .playlist_manager--poll
+    text-align: center
+    margin: auto
+
+  .playlist_manager--songlist_container
+    width: 70%
+    margin: 10px auto
+    text-align: center
+    padding: 10px
+    .playlist_manager--songlist_container_title
+      font-weight: 900
+    .playlist_manager--songlist_export
+      float: right
+    .playlist_manager--songlist_container_songlist
+      height: 150px
+      overflow-y: scroll
+      border: 4px solid black
+      .playlist_manager--songlist_track
+        position: relative
+        width: 90%
+        margin: auto
+        .playlist_manager--songlist_track_name
+          width: 100%
+          overflow-x: hidden
+          white-space: nowrap
+        .playlist_manager--songlist_track_delete
+          font-weight: 900
+          position: absolute
+          right: -15px
+
+  .playlist_manager--track_added_notice
+    position: fixed
+    left: 50%
+    top: 20%
+    transform: translateX(-50%)
+    padding: 18px
+    border: 2px solid black
+    border-radius: 14px
+    font-size: 1.4em
+
+  .playlist_manager--close_songlist
+    position: absolute
+    top: 0%
+    right: 0%
+    font-size: 40px
+    cursor: pointer

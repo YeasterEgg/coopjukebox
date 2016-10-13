@@ -162,7 +162,8 @@ Meteor.methods({
       active: true,
       winners: [],
       pollsLeft: parseInt(number),
-      closesAt: new Date(new Date - - 300000)
+      closesAt: new Date(new Date - - 300000),
+      private: false
     }, function(err,res){
       if(!err){
         Meteor.setTimeout(function(){
@@ -194,7 +195,16 @@ Meteor.methods({
     Meteor.call('playlist.addTrackToPlaylist', playlist, winnerUri)
     if(closingPoll.pollsLeft > 0){
       delete closingPoll.songlist["track_" + winner.spotifyId]
-      availableChoices = cf.randomProperties(closingPoll.songlist,closingPoll.pollSize)
+      nTracksFromVoters = Math.ceil(closingPoll.pollSize / 2)
+      tracksFromVoters = cf.randomProperties(closingPoll.votersChoices, nTracksFromVoters)
+
+      nTracksFromSonglist = closingPoll.pollSize - Object.keys(tracksFromVoters).length
+      tracksFromSonglist = cf.randomProperties(closingPoll.songlist,nTracksFromSonglist)
+
+      availableChoices = Object.assign(tracksFromVoters, tracksFromSonglist)
+
+      // TODO: Add a check to add tracks if the merge has 2 or more identical tracks that will be used only once
+
       pollUpdates = {
         $push: {winners: winner},
         $set: {

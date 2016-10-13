@@ -6,11 +6,12 @@ import Track from '../common/Track.jsx'
 export default class TrackList extends Component {
 
   render(){
+    length = tracks.length
     return(
       <div className="tracklist--tracklist_container">
         {this.props.tracks.map(function(track){
           return(
-            <Track track={track} key={track.spotifyId} clickOnTrackAction={this.props.clickOnTrackAction.bind(this)} withVotes={this.props.withVotes}/>
+            <Track track={track} key={track.spotifyId} clickOnTrackAction={this.props.clickOnTrackAction.bind(this)} withVotes={this.props.withVotes} length={length}/>
           )
         }.bind(this))}
       </div>
