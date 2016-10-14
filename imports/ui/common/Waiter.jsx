@@ -6,7 +6,7 @@ export default class Waiter extends Component {
     return(
       <div className="loader--container">
         <div className="loader--dots">
-          {"{"}<span>.</span><span>.</span><span>.</span>{"}"}
+          {"{"}<span>♫</span><span>♩</span><span>♬</span>{"}"}
         </div>
       </div>
     )
