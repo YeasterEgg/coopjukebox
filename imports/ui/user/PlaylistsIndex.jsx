@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import PlaylistManager from './PlaylistManager.jsx'
+import Info from './Info.jsx'
 
 import { Playlists } from '../../api/playlists.js'
 
@@ -12,17 +13,26 @@ export default class PlaylistsIndex extends Component {
     super(props)
     this.state = {
       currentPlaylistIndex: false,
+      info: false,
     }
   }
 
   render(){
     if(this.state.currentPlaylistIndex === false){
       return(
-        <div>{this.renderPlaylistSummary()}</div>
+        <div>
+          {this.renderInfoButton()}
+          {this.renderInfo()}
+          {this.renderPlaylistSummary()}
+        </div>
       )
     }else{
       return(
-        <PlaylistManager playlist={this.props.playlists[this.state.currentPlaylistIndex]} user={this.props.user} closePlaylist={this.closePlaylist.bind(this)}/>
+        <div>
+          {this.renderInfoButton()}
+          {this.renderInfo()}
+          <PlaylistManager playlist={this.props.playlists[this.state.currentPlaylistIndex]} user={this.props.user} closePlaylist={this.closePlaylist.bind(this)}/>
+        </div>
       )
     }
   }
@@ -62,6 +72,24 @@ export default class PlaylistsIndex extends Component {
     )
   }
 
+  renderInfo(){
+    if(this.state.info){
+      return(
+        <Info />
+      )
+    }else{
+      return(
+        null
+      )
+    }
+  }
+
+  renderInfoButton(){
+    return(
+      <div className="playlists_index--info_button" onClick={function(){this.clickOnInfo()}.bind(this)}>info</div>
+    )
+  }
+
   createPlaylist(event){
     event.preventDefault()
     name = document.getElementById("playlist_name").value
@@ -86,6 +114,10 @@ export default class PlaylistsIndex extends Component {
 
   closePlaylist(){
     this.setState({currentPlaylistIndex: false})
+  }
+
+  clickOnInfo(){
+    this.setState({info: !this.state.info})
   }
 }
 
