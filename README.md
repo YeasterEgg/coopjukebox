@@ -25,5 +25,6 @@ TO BE FUCKING DONE!
 
 - Import arrays of uris as songlists :D
 - Retrieve track special data (danceability, etc.) from the endpoint when a track is added to a songlist
-- Allow voters to add tracks
-- Show available polls in homepage, and also allow to set a poll as private
+- Show available polls in homepage
+- Allow to set a poll as private
+- Add modal Info for users
