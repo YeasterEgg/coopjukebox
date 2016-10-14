@@ -4,6 +4,7 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import SpotifyHeader from './SpotifyHeader.jsx'
 import SpotifyTrackImporter from './SpotifyTrackImporter.jsx'
+import PollCommands from './PollCommands.jsx'
 
 import { Polls } from '../../api/polls.js'
 
@@ -16,6 +17,7 @@ export default class PlaylistManager extends Component {
     this.state = {
       searchResult: [],
       notice: false,
+      stopped: false
     }
   }
 
@@ -27,7 +29,7 @@ export default class PlaylistManager extends Component {
           {this.renderNotice()}
         </ReactCSSTransitionGroup>
         <SpotifyHeader playlist={this.props.playlist} />
-        {this.renderPollCommands()}
+        <PollCommands poll={this.props.poll} playlist={this.props.playlist} />
         {this.renderSonglistCommands()}
       </div>
     )
@@ -56,46 +58,6 @@ export default class PlaylistManager extends Component {
     }
   }
 
-  renderPollCommands(){
-    if(this.props.poll){
-      return(
-        <div className="playlist_manager--poll">
-          <button type="submit" className="playlist_manager--start_poll button-round pure-button button-error" onClick={this.stopCurrentPoll.bind(this)}>Stop current Poll</button>
-          {this.renderPollStatus()}
-          <div className="playlist_manager--chosen_container">
-            {this.renderTracksChosen()}
-          </div>
-        </div>
-      )
-    }else{
-      return(
-        <div className="playlist_manager--poll">
-          <div className="playlist_manager--form_part">
-            <label htmlFor="poll_size">Poll Size</label>
-            <input name="poll_size" id="poll_size" type="number" size="20" maxLength="3" min="2" max="6" step="1" defaultValue="2"/>
-          </div>
-          <div className="playlist_manager--form_part">
-            <label htmlFor="poll_number">Number of consecutive Polls</label>
-            <input name="poll_number" id="poll_number" type="number" size="20" maxLength="3" min="2" max="12" step="1" defaultValue="2"/>
-          </div>
-          <button type="submit" className="playlist_manager--start_poll button-round pure-button pure-button-primary" onClick={this.startVoting.bind(this)}>Start Voting!</button>
-        </div>
-      )
-    }
-  }
-
-  renderPollStatus(){
-    return(
-      Object.values(this.props.poll.availableChoices).map(function(track){
-        return(
-          <div className="playlist_manager--poll_track" key={track.spotifyId}>
-            <span className="playlist_manager--poll_track_name">{track.name + " : " + track.votes}</span>
-          </div>
-        )
-      })
-    )
-  }
-
   renderSonglist(){
     return(
       <div className="playlist_manager--songlist_container">
@@ -117,47 +79,11 @@ export default class PlaylistManager extends Component {
     )
   }
 
-  renderTracksChosen(){
-    return(
-      <div className="playlist_manager--chosen_container">
-        <div className="playlist_manager--chosen_container_title">
-          <span>Tracks Added by Users</span>
-        </div>
-        <div className="playlist_manager--chosen_container_songlist">
-          {Object.values(this.props.poll.votersChoices).map(function(track){
-            return(
-              <div className="playlist_manager--chosen_track" key={track.spotifyId}>
-                <span className="playlist_manager--chosen_track_name">{track.name}</span>
-              </div>
-            )
-          }.bind(this))}
-        </div>
-      </div>
-    )
-  }
-
   renderExportSonglist(){
     list = _.pluck(this.props.playlist.songlist, "spotifyId").join("/n")
     return(
       <a className="playlist_manager--songlist_export" href={"data:application/octet-stream," + encodeURIComponent(list)} >Export Songlist</a>
     )
-  }
-
-  stopCurrentPoll(){
-    Meteor.call("poll.stopPoll", this.props.poll._id, function(error, result){
-      console.log(result)
-    })
-  }
-
-  startVoting(){
-    size = document.getElementById("poll_size").value
-    number = document.getElementById("poll_number").value
-    console.log('nope!')
-    Meteor.call("poll.startPoll", this.props.playlist, size, number, function(error, result){
-      if(result){
-        this.setNotice(result)
-      }
-    }.bind(this))
   }
 
   removeFromSonglist(track){

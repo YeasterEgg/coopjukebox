@@ -76,8 +76,6 @@ export default class PlaylistsIndex extends Component {
     Meteor.call("playlists.create", this.props.user, playlist, function(error, result){
       if(result){
         document.getElementById("playlist_name").value = ''
-      }else{
-        console.log(error)
       }
     })
   }

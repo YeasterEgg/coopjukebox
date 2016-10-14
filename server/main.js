@@ -228,10 +228,7 @@ Meteor.methods({
   },
 
   "poll.stopPoll": function(pollId){
-    Polls.update({_id: pollId}, {$set: {pollsLeft: 0}}, function(result){
-      console.log(result)
-      return result
-    })
+    Polls.update({_id: pollId}, {$set: {pollsLeft: 0}})
   },
 
 /// GENERIC METHODS

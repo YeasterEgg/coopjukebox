@@ -9,7 +9,6 @@ import { Polls } from '../../api/polls.js'
 export default class PollsIndex extends Component {
 
   render(){
-    console.log(this.props)
     if(!this.props.subscriptionsReady){
       return(
         <Waiter />
