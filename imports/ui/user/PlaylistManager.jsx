@@ -4,15 +4,10 @@ import { createContainer } from 'meteor/react-meteor-data'
 
 import SpotifyHeader from './SpotifyHeader.jsx'
 import SpotifyTrackImporter from './SpotifyTrackImporter.jsx'
-import Waiter from '../common/Waiter.jsx'
-import TrackList from '../common/TrackList.jsx'
 
 import { Polls } from '../../api/polls.js'
 
 const ReactCSSTransitionGroup = require('react-addons-css-transition-group');
-cf = require('../../lib/commonFunctions.js')
-config = require('../../lib/config.js')
-querystring = require('querystring')
 
 export default class PlaylistManager extends Component {
 

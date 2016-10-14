@@ -3,10 +3,6 @@ import ReactDOM from 'react-dom'
 
 import TrackSearcher from '../common/TrackSearcher.jsx'
 
-cf = require('../../lib/commonFunctions.js')
-config = require('../../lib/config.js')
-querystring = require('querystring')
-
 export default class SpotifyTrackImporter extends Component {
 
   render(){

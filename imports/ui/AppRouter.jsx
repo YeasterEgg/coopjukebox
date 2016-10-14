@@ -3,10 +3,8 @@ import { render } from 'react-dom'
 import { browserHistory, Router, Route, Link } from 'react-router'
 
 import MasterVoter from './people/MasterVoter.jsx'
-
 import MasterController from './user/MasterController.jsx'
 import Callback from './user/Callback.jsx'
-
 import PageNotFound from './common/PageNotFound.jsx'
 
 export default class AppRouter extends Component {

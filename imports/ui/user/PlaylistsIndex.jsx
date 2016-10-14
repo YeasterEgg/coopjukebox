@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom'
 import { createContainer } from 'meteor/react-meteor-data'
 
 import PlaylistManager from './PlaylistManager.jsx'
-import Waiter from '../common/Waiter.jsx'
 
 import { Playlists } from '../../api/playlists.js'
 

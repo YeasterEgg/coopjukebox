@@ -1,10 +1,8 @@
 import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
 import ReactDOM from 'react-dom'
 import Track from '../common/Track.jsx'
 
 export default class TrackList extends Component {
-
   render(){
     length = tracks.length
     return(
