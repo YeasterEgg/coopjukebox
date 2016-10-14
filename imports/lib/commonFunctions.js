@@ -19,7 +19,7 @@ randomProperties = function(object, size){
 
 secondsToMinutes = function(totalSeconds){
   seconds = totalSeconds % 60
-  minutes = Math.floor(totalSeconds / 60)
+  minutes = ~~(totalSeconds / 60)
   formatted = addLeadingZero(minutes) + ":" + addLeadingZero(seconds)
   return formatted
 }

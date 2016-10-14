@@ -211,6 +211,7 @@ Meteor.methods({
         $set: {
               availableChoices: availableChoices,
               songlist: closingPoll.songlist,
+              votersChoices: closingPoll.votersChoices,
               startedAt: new Date,
               closesAt: new Date(new Date - - winner.duration_ms),
               },
@@ -224,6 +225,13 @@ Meteor.methods({
     }else{
       Polls.update({_id: pollId}, {$push: {winners: winner}, $set: {active: false}})
     }
+  },
+
+  "poll.stopPoll": function(pollId){
+    Polls.update({_id: pollId}, {$set: {pollsLeft: 0}}, function(result){
+      console.log(result)
+      return result
+    })
   },
 
 /// GENERIC METHODS

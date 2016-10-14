@@ -60,7 +60,7 @@ export default class PlaylistManager extends Component {
     if(this.props.poll){
       return(
         <div className="playlist_manager--poll">
-          <button type="submit" className="playlist_manager--start_poll button-round pure-button button-error pure-button-disabled" onClick={function(){console.log('Active Polls!')}} disabled>There are polls still ongoing!</button>
+          <button type="submit" className="playlist_manager--start_poll button-round pure-button button-error" onClick={this.stopCurrentPoll.bind(this)}>Stop current Poll</button>
           {this.renderPollStatus()}
           <div className="playlist_manager--chosen_container">
             {this.renderTracksChosen()}
@@ -141,6 +141,12 @@ export default class PlaylistManager extends Component {
     return(
       <a className="playlist_manager--songlist_export" href={"data:application/octet-stream," + encodeURIComponent(list)} >Export Songlist</a>
     )
+  }
+
+  stopCurrentPoll(){
+    Meteor.call("poll.stopPoll", this.props.poll._id, function(error, result){
+      console.log(result)
+    })
   }
 
   startVoting(){
