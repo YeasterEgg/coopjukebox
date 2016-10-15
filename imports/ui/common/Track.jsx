@@ -31,26 +31,30 @@ export default class Track extends Component {
   }
 
   renderFeaures(){
-    danceability = Math.ceil(this.props.track.features.danceability / 0.2)
-    energy = Math.ceil(this.props.track.features.energy / 0.2)
-    return(
-      <div className="tracklist--track_features">
-        <div className="tracklist--track_danceability">Danceability:
-          {_.times(danceability, function(n){
-            return(
-              <span key={n}>D</span>
-            )
-          })}
+    if(this.props.track.features){
+      danceability = Math.ceil(this.props.track.features.danceability / 0.2)
+      energy = Math.ceil(this.props.track.features.energy / 0.2)
+      return(
+        <div className="tracklist--track_features">
+          <div className="tracklist--track_danceability">Danceability:
+            {_.times(danceability, function(n){
+              return(
+                <span key={n}>D</span>
+              )
+            })}
+          </div>
+          <div className="tracklist--track_energy">Energy:
+            {_.times(energy, function(n){
+              return(
+                <span key={n}>E</span>
+              )
+            })}
+          </div>
         </div>
-        <div className="tracklist--track_energy">Energy:
-          {_.times(energy, function(n){
-            return(
-              <span key={n}>E</span>
-            )
-          })}
-        </div>
-      </div>
-    )
+      )
+    }else{
+      return null
+    }
   }
 }
 
