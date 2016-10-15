@@ -39,14 +39,14 @@ export default class Track extends Component {
           <div className="tracklist--track_danceability">Danceability:
             {_.times(danceability, function(n){
               return(
-                <span key={n}>D</span>
+                <img key={n} className="tracklist--feature_pic" src="/danceability.png" />
               )
             })}
           </div>
           <div className="tracklist--track_energy">Energy:
             {_.times(energy, function(n){
               return(
-                <span key={n}>E</span>
+                <img key={n} className="tracklist--feature_pic" src="/energy.png" />
               )
             })}
           </div>

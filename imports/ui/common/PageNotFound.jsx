@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom'
 
 import CountDown from '../people/CountDown.jsx'
 
-
 export default class PageNotFound extends Component {
 
   render(){

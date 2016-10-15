@@ -20,7 +20,8 @@ const playlistAddTrack = function(userSpotifyId, playlistSpotifyId){
 )
 }
 const punishmentUris = [
-  "spotify:track:6xfs3g7UCu1BJlAnQ13gT3",
+  "spotify:track:6xfs3g7UCu1BJlAnQ13gT3", // Gigi d'Alessio
+  "spotify:track:7k04AtkrExPKYGrWXCuSzB", // Pippo Franco
 ]
 
 module.exports = {
