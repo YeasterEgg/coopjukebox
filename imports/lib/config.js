@@ -8,6 +8,7 @@ const tokenUrl = "https://accounts.spotify.com/api/token"
 const userUrl = "https://api.spotify.com/v1/me/"
 const searchUrl = "https://api.spotify.com/v1/search?"
 const embeddedTrackUrl = "https://embed.spotify.com/?uri=spotify:track:"
+const trackFeaturesUrl = "https://api.spotify.com/v1/audio-features/"
 const playlistUrl = function(userSpotifyId){
   return ("https://api.spotify.com/v1/users/" + userSpotifyId + "/playlists")
 }
@@ -36,4 +37,5 @@ module.exports = {
   punishmentUris: punishmentUris,
   playlistAddTrack: playlistAddTrack,
   embeddedTrackUrl: embeddedTrackUrl,
+  trackFeaturesUrl: trackFeaturesUrl,
 }

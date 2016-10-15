@@ -22,6 +22,10 @@ getTokenFromUser = function(userId){
   }
 }
 
+decorateTrack = function(track){
+
+}
+
 updateToken = function(user, callback){
   token = user.token
   expiringDate = new Date(token.validationStart.getTime() - - token.expiresIn * 1000)

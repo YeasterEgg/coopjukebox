@@ -120,7 +120,9 @@ Meteor.methods({
   },
 
   "playlist.addTrackToSonglist": function(playlist, track){
-    Playlists.update({_id: playlist._id}, {$set: {['songlist.track_'+track.spotifyId]: track}})
+    user = LoggedUsers.findOne({_id: playlist.userId})
+    decoratedTrack = Meteor.call("decorateTrack", user, track)
+    Playlists.update({_id: playlist._id}, {$set: {['songlist.track_'+decoratedTrack.spotifyId]: decoratedTrack}})
     return true
   },
 
@@ -236,5 +238,15 @@ Meteor.methods({
   "getAuthUrl": function(sessionId){
     return getAuth(config.clientId, config.redirectUrl, config.scope, sessionId, config.authUrl)
   },
+
+  "decorateTrack": function(user, track){
+    updateTokenWrapper(user)
+    url = config.trackFeaturesUrl + track.spotifyId
+    headers = {'Authorization': 'Bearer ' + user.token.accessToken }
+    result = getApiWrapper(url, headers)
+    console.log(result.body)
+    track.features = result.body
+    return track
+  }
 
 })
