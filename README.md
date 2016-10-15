@@ -1,4 +1,4 @@
-# Democracy-Jockey
+# Coop-Jukebox
 Polls for choosing a song in a Spotify playlist
 
 HOW IT SHOULD WORK:
@@ -23,8 +23,6 @@ At the end of the poll, the song with more votes will be added to the playlist.
 
 TO BE FUCKING DONE!
 
-- Import arrays of uris as songlists :D
-- Retrieve track special data (danceability, etc.) from the endpoint when a track is added to a songlist
+- Export and Import Songlist with the playlist id
 - Show available polls in homepage
 - Allow to set a poll as private
-- Add modal Info for users
