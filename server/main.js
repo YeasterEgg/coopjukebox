@@ -108,12 +108,8 @@ Meteor.methods({
     headers = {'Authorization': 'Bearer ' + user.token.accessToken }
     result = getApiWrapper(url, headers)
     if(!result.body.error){
-      songlist = {}
-      _.map(result.body.items, function(item){
-        parsedTrack = cf.getTrackValues(item.track)
-        parsedTrack.votes = 0
-        songlist["songlist.track_" + item.track.id] = parsedTrack
-      })
+      rawTracks = result.body.items
+      songlist = Meteor.call("decorateTracks", user, rawTracks)
       Playlists.update({_id: playlist._id}, {$set: songlist})
       return result.body
     }
@@ -244,9 +240,27 @@ Meteor.methods({
     url = config.trackFeaturesUrl + track.spotifyId
     headers = {'Authorization': 'Bearer ' + user.token.accessToken }
     result = getApiWrapper(url, headers)
-    console.log(result.body)
     track.features = result.body
     return track
+  },
+
+  "decorateTracks": function(user, rawTracks){
+    updateTokenWrapper(user)
+    ids = rawTracks.map(function(item){
+      return item.track.id
+    })
+    url = config.trackFeaturesUrl + "?ids=" + ids.join(',')
+    headers = {'Authorization': 'Bearer ' + user.token.accessToken }
+    result = getApiWrapper(url, headers)
+    features = result.body.audio_features
+    songlist = {}
+    rawTracks.map(function(item, index){
+      newTrack = getTrackValues(item.track)
+      newTrack.votes = 0
+      newTrack.features = features[index]
+      songlist["songlist.track_" + newTrack.spotifyId] = newTrack
+    })
+    return songlist
   }
 
 })
