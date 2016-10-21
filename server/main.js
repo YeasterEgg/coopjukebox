@@ -111,7 +111,7 @@ Meteor.methods({
       rawTracks = result.body.items
       songlist = Meteor.call("decorateTracks", user, rawTracks)
       Playlists.update({_id: playlist._id}, {$set: songlist})
-      return result.body
+      return songlist
     }
   },
 

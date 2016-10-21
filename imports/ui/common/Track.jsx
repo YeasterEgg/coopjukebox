@@ -36,14 +36,14 @@ export default class Track extends Component {
       energy = Math.ceil(this.props.track.features.energy / 0.2)
       return(
         <div className="tracklist--track_features">
-          <div className="tracklist--track_danceability">Danceability:
+          <div className="tracklist--track_danceability">
             {_.times(danceability, function(n){
               return(
                 <img key={n} className="tracklist--feature_pic" src="/danceability.png" />
               )
             })}
           </div>
-          <div className="tracklist--track_energy">Energy:
+          <div className="tracklist--track_energy">
             {_.times(energy, function(n){
               return(
                 <img key={n} className="tracklist--feature_pic" src="/energy.png" />
