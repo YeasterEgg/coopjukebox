@@ -49,7 +49,7 @@ export default class PlaylistManager extends Component {
     if(!this.props.poll){
       return(
         <div className="playlist_manager--songlist_container">
-          <SpotifyTrackImporter playlist={this.props.playlist} setNotice={this.setNotice.bind(this)}/>
+          <SpotifyTrackImporter playlist={this.props.playlist} setNotice={this.setNotice.bind(this)} playlists={this.props.user.playlists} />
           {this.renderSonglist()}
         </div>
       )

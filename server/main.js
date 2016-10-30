@@ -81,11 +81,12 @@ Meteor.methods({
       return false
     }
 
-    sameName = Playlists.find({chosenName: playlist.name}).fetch().length
-    if(sameName > 0){
-      urlParam = playlist.name + "_" + sameName
+    cleanName = playlist.name.replace(/ /g,"_")
+    sameNameSize = Playlists.find({chosenName: cleanName}).fetch().length
+    if(sameNameSize > 0){
+      urlParam = cleanName + "_" + sameNameSize
     }else{
-      urlParam = playlist.name
+      urlParam = cleanName
     }
 
     Playlists.insert({
@@ -140,6 +141,45 @@ Meteor.methods({
 
   "playlist.punishment": function(playlist){
     Meteor.call("playlist.addTrackToPlaylist", playlist, _.sample(config.punishmentUris))
+  },
+
+  "playlist.fetchFromUserId": function(user){
+    updateTokenWrapper(user)
+    url = config.playlistUrl(user._id)
+    headers = {'Authorization': 'Bearer ' + user.token.accessToken }
+    result = getApiWrapper(url, headers)
+    if(result.body.error){
+      return false
+    }else{
+      LoggedUsers.update({_id: user._id}, {$set: {"playlists": result.body.items}})
+      result.body.items.map(function(playlist){
+        if(Playlists.findOne({_id: playlist.id})){
+          // Playlist already exists
+        }else if(playlist.owner.id !== user._id){
+          // Playlist is not user's so it cannot be modified, so it won't be listed
+        }else{
+          cleanName = playlist.name.replace(/ /g,"_")
+          sameNameSize = Playlists.find({chosenName: cleanName}).fetch().length
+          if(sameNameSize > 0){
+            urlParam = cleanName + "_" + sameNameSize
+          }else{
+            urlParam = cleanName
+          }
+          newPlaylist = {
+            _id: playlist.id,
+            spotifyUrl: playlist.href,
+            name: playlist.name,
+            chosenName: urlParam,
+            userId: user._id,
+            songlist: {},
+            tracks: {},
+            creatorId: playlist.owner.id,
+            openUrl: playlist.external_urls.spotify,
+          }
+          Playlists.insert(newPlaylist)
+        }
+      })
+    }
   },
 
 /// POLL METHODS

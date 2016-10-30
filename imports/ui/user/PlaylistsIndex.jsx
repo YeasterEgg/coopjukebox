@@ -128,6 +128,7 @@ PlaylistsIndex.propTypes = {
 export default createContainer((props) => {
 
   const playlistsSubscription = Meteor.subscribe('playlists.fromUserId', props.user._id)
+  Meteor.call("playlist.fetchFromUserId", props.user)
 
   return {
     playlists: Playlists.find().fetch(),
