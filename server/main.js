@@ -1,9 +1,6 @@
 import { Meteor } from 'meteor/meteor'
-import { LoggedUsers } from '../imports/api/loggedUsers.js'
 import { Polls } from '../imports/api/polls.js'
-import { Playlists } from '../imports/api/playlists.js'
 const crypto = require('crypto')
-const pollExchangeRate = 0.20
 
 Meteor.startup(() => {
   Polls.update({active: true}, {$set: {active: false}} )

@@ -1,3 +1,6 @@
+import { Meteor } from 'meteor/meteor'
+import { LoggedUsers } from '../../imports/api/loggedUsers.js'
+
 Meteor.methods({
 
   // Retrieves a logged user from the sessionId cached in localStorage.

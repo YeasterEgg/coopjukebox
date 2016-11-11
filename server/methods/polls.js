@@ -1,3 +1,7 @@
+import { Meteor } from 'meteor/meteor'
+import { Polls } from '../../imports/api/polls.js'
+import { Playlists } from '../../imports/api/playlists.js'
+
 Meteor.methods({
 
   "poll.startPoll": function(playlist){
@@ -9,7 +13,7 @@ Meteor.methods({
         playlistId: playlist._id,
         active: true,
         songlist: playlist.songlist,
-        availableChoices: playlist.songlist,
+        availableChoices: availableChoices,
         votersChoices: {},
         startedAt: new Date,
         reloadTimeout: 600000,
@@ -21,26 +25,50 @@ Meteor.methods({
           return {kind: "success", text: res}
         }
       })
-
     }
   },
 
   "poll.startLifecycle": function(pollId){
+
+    // The poll starts! It calls 2 different branches of cycles:
+    // - The winning song lifecycle, which every n minutes selects the most voted song to add to the playlist
+    // - The songlist reload lyfecicle, which every n minutes changes the songlist with a specific algorithm
+
     poll = Polls.findOne({_id: pollId})
     pollReloadTimeout = poll.reloadTimeout
     firstSongTimeout = 300000
-    firstTime = true
+
     Meteor.setTimeout(function(){
-      Meteor.call("poll.winnerPrize", pollId, firstTime)
+      Meteor.call("poll.winnerPrize", pollId)
     }, firstSongTimeout)
+
     Meteor.setTimeout(function(){
       Meteor.call("poll.reloadSongs", pollId)
-    }, firstSongTimeout)
+    }, pollReloadTimeout)
   },
 
-  "poll.winnerPrize": function(pollId, firstTime = false){
+  "poll.winnerPrize": function(pollId){
+
+    // Finds the Poll and orders for votes
+    // Then the winner is added to the playlist and removed from the current songlist, throwing in one song
+    // from the voters' choiches
+
     poll   = Polls.findOne({_id: pollId})
-    return poll
+    orderedTracks = _.sortBy(Object.values(poll.availableChoices), function(track){
+      return track.votes
+    })
+    winner = orderedTracks.slice(-1)[0]
+    winnerUri = "spotify:track:" + winner.spotifyId
+    Meteor.call('playlist.addTrackToPlaylist', playlist, winnerUri)
+
+    delete poll.songlist["track_" + winner.spotifyId]
+    delete poll.availableChoices["track_" + winner.spotifyId]
+    delete poll.votersChoices["track_" + winner.spotifyId]
+
+    firstVoterChoice = poll.votersChoices[Object.keys(poll.votersChoices)[0]]
+
+    newAvailableChoices = Object.assign(poll.availableChoices, firstVoterChoice)
+
   },
 
   "poll.endSinglePollTurn": function(pollId, playlist){

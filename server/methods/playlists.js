@@ -1,3 +1,7 @@
+import { Meteor } from 'meteor/meteor'
+import { LoggedUsers } from '../../imports/api/loggedUsers.js'
+import { Playlists } from '../../imports/api/playlists.js'
+
 Meteor.methods({
 
   "playlists.create": function(user, playlist){
