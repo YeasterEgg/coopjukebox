@@ -6,7 +6,8 @@ export default class PollCommands extends Component {
   constructor(props){
     super(props)
     this.state = {
-      stopped: false
+      stopped: false,
+      pollSize: 50 // to be set!
     }
   }
 
@@ -14,7 +15,7 @@ export default class PollCommands extends Component {
     if(!this.props.poll){
       return(
         <div>
-          {this.renderInactivePoll()}
+          {this.renderButton()}
         </div>
       )
     }else{
@@ -24,22 +25,6 @@ export default class PollCommands extends Component {
         </div>
       )
     }
-  }
-
-  renderInactivePoll(){
-    return(
-      <div className="playlist_manager--poll">
-        <div className="playlist_manager--form_part">
-          <label htmlFor="poll_size">Number of possible choices</label>
-          <input name="poll_size" id="poll_size" type="number" size="20" maxLength="3" min="2" max="6" step="1" defaultValue="2"/>
-        </div>
-        <div className="playlist_manager--form_part">
-          <label htmlFor="poll_number">Number of consecutive polls</label>
-          <input name="poll_number" id="poll_number" type="number" size="20" maxLength="3" min="2" max="12" step="1" defaultValue="2"/>
-        </div>
-        {this.renderButton()}
-      </div>
-    )
   }
 
   renderActivePoll(){
@@ -112,11 +97,12 @@ export default class PollCommands extends Component {
 
   startVoting(){
     this.setState({stopped: false})
-    size = document.getElementById("poll_size").value
-    number = document.getElementById("poll_number").value
-    Meteor.call("poll.startPoll", this.props.playlist, size, number, function(error, result){
+    Meteor.call("poll.startSinglePoll", this.props.playlist, this.state.pollSize, function(error, result){
       if(result){
+        console.log(result)
         this.setNotice(result)
+      }else{
+        alert(error)
       }
     }.bind(this))
   }
