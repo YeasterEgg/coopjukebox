@@ -61,7 +61,8 @@ Meteor.methods({
     return true
   },
 
-  "playlist.addTrackToPlaylist": function(playlist, trackUri){
+  "playlist.addTrackToPlaylist": function(playlistId, trackUri){
+    playlist = Playlists.findOne({_id: playlistId})
     user = LoggedUsers.findOne({_id: playlist.userId})
     updateTokenWrapper(user)
     url = config.playlistAddTrack(user._id, playlist._id)

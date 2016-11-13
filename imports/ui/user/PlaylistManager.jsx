@@ -29,7 +29,7 @@ export default class PlaylistManager extends Component {
           {this.renderNotice()}
         </ReactCSSTransitionGroup>
         <SpotifyHeader playlist={this.props.playlist} />
-        <PollCommands poll={this.props.poll} playlist={this.props.playlist} />
+        <PollCommands poll={this.props.poll} playlist={this.props.playlist} setNotice={this.setNotice.bind(this)} />
         {this.renderSonglistCommands()}
       </div>
     )

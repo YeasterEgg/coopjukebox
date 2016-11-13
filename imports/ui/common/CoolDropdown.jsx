@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom'
 export default class CoolDropdown extends Component {
 
   render(){
-    console.log(this.props)
     return(
       <form className={this.props.classes} onSubmit={this.props.onSubmit.bind(this)} >
         <label htmlFor={this.props.inputName}>{this.props.label}</label>

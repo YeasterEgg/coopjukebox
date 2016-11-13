@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
+import PollWinner from './PollWinner.jsx'
 
 export default class PollCommands extends Component {
 
@@ -7,7 +8,6 @@ export default class PollCommands extends Component {
     super(props)
     this.state = {
       stopped: false,
-      pollSize: 50 // to be set!
     }
   }
 
@@ -21,6 +21,7 @@ export default class PollCommands extends Component {
     }else{
       return(
         <div>
+          <PollWinner winner={this.props.poll.winners[0]} setNotice={this.props.setNotice.bind(this)} />
           {this.renderActivePoll()}
         </div>
       )
@@ -97,13 +98,6 @@ export default class PollCommands extends Component {
 
   startVoting(){
     this.setState({stopped: false})
-    Meteor.call("poll.startSinglePoll", this.props.playlist, this.state.pollSize, function(error, result){
-      if(result){
-        console.log(result)
-        this.setNotice(result)
-      }else{
-        alert(error)
-      }
-    }.bind(this))
+    Meteor.call("poll.startPoll", this.props.playlist)
   }
 }

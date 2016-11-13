@@ -16,16 +16,16 @@ export default class Voter extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps){
-    if(!localStorage.pollsVoted){
-      this.setState({voted: false})
-    }
-    pollsVoted = JSON.parse(localStorage.pollsVoted)
-    pollUniqId = nextProps.poll._id + "_" + nextProps.poll.pollsLeft
-    if(!pollsVoted[pollUniqId]){
-      this.setState({voted: false})
-    }
-  }
+  // componentWillReceiveProps(nextProps){
+  //   if(!localStorage.pollsVoted){
+  //     this.setState({voted: false})
+  //   }
+  //   pollsVoted = JSON.parse(localStorage.pollsVoted)
+  //   pollUniqId = nextProps.poll._id + "_" + nextProps.poll.pollsLeft
+  //   if(!pollsVoted[pollUniqId]){
+  //     this.setState({voted: false})
+  //   }
+  // }
 
   componentWillMount(){
     if(!localStorage.pollsVoted) return false
@@ -60,7 +60,7 @@ export default class Voter extends Component {
   }
 
   renderContent(){
-    tracks = Object.values(this.props.poll.availableChoices)
+    tracks = _.shuffle(Object.values(this.props.poll.availableChoices))
     if(this.state.action === "vote"){
       return(
         <VoterVote tracks={tracks} clickOnTrackAction={this.addVoteToTrack.bind(this)} />
@@ -118,6 +118,6 @@ export default class Voter extends Component {
     }
     pollsVoted[pollUniqId] = track.spotifyId
     localStorage.pollsVoted = JSON.stringify(pollsVoted)
-    this.setState({voted: track.spotifyId})
+    this.setState({voted: track.spotifyId, at: new Date})
   }
 }

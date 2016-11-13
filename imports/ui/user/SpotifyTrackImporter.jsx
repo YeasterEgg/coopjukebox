@@ -34,7 +34,6 @@ export default class SpotifyTrackImporter extends Component {
         text: playlist.name,
       })
     })
-    console.log(options)
     return(
       <CoolDropdown classes="playlist_manager--add_user_playlist" onSubmit={this.importUserPlaylist.bind(this)} inputName="user_playlist_id" submit="Import Playlist" label="Import songs from one of your playlists" options={options}/>
     )
