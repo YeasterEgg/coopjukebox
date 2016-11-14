@@ -12,7 +12,7 @@ export default class Track extends Component {
         <div className="tracklist--track_title">{this.props.track.name}</div>
         <div className="tracklist--track_info">
           {this.renderVotes.bind(this)()}
-          {this.renderFeaures.bind(this)()}
+          {this.renderFeatures.bind(this)()}
           <div className="tracklist--track_duration">{length}</div>
           <div className="tracklist--track_artist">{this.props.track.artist}</div>
         </div>
@@ -30,21 +30,21 @@ export default class Track extends Component {
     }
   }
 
-  renderFeaures(){
+  renderFeatures(){
     if(this.props.track.features){
-      danceability = Math.ceil(this.props.track.features.danceability / 0.2)
-      energy = Math.ceil(this.props.track.features.energy / 0.2)
+      pawa = Math.ceil(this.props.track.pawa / 0.2)
+      strength = Math.ceil(this.props.track.strength / 0.2)
       return(
         <div className="tracklist--track_features">
           <div className="tracklist--track_danceability">
-            {_.times(danceability, function(n){
+            {_.times(pawa, function(n){
               return(
                 <img key={n} className="tracklist--feature_pic" src="/danceability.png" />
               )
             })}
           </div>
           <div className="tracklist--track_energy">
-            {_.times(energy, function(n){
+            {_.times(strength, function(n){
               return(
                 <img key={n} className="tracklist--feature_pic" src="/energy.png" />
               )

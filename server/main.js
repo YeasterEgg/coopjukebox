@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor'
 import { Polls } from '../imports/api/polls.js'
 const crypto = require('crypto')
+ma = require('../imports/lib/musicAnalyzer.js')
 
 Meteor.startup(() => {
   Polls.update({active: true}, {$set: {active: false}} )
@@ -22,6 +23,7 @@ Meteor.methods({
     headers = {'Authorization': 'Bearer ' + user.token.accessToken }
     result = getApiWrapper(url, headers)
     track.features = result.body
+    track = ma.mergeFeatures(track)
     return track
   },
 
@@ -39,6 +41,7 @@ Meteor.methods({
       newTrack = getTrackValues(item.track)
       newTrack.votes = 0
       newTrack.features = features[index]
+      newTrack = ma.mergeFeatures(newTrack)
       songlist["songlist.track_" + newTrack.spotifyId] = newTrack
     })
     return songlist

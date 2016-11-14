@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor'
 import { Polls } from '../../imports/api/polls.js'
 import { Playlists } from '../../imports/api/playlists.js'
+import { LoggedUsers } from '../../imports/api/loggedUsers.js'
 
 Meteor.methods({
 
@@ -14,7 +15,7 @@ Meteor.methods({
         playlistId: playlist._id,
         active: true,
         songlist: playlist.songlist,
-        availableChoices: availableChoices,
+        availableChoices: playlist.songlist,
         votersChoices: {},
         startedAt: new Date,
         reloadTimeout: 60000,
@@ -72,7 +73,6 @@ Meteor.methods({
     firstVoterChoice = _.sortBy(poll.votersChoices, function(track){ return track.added_at })[0]
     if(firstVoterChoice){
       poll.availableChoices["track_" + firstVoterChoice.spotifyId] = firstVoterChoice
-      console.log(poll.availableChoices)
     }else{
       remainingChoices = _.filter(poll.songlist, function(track){ poll.availableChoices["track_" + track.spotifyId] === undefined } )
       poll.availableChoices["track_" + remainingChoices[0].spotifyId] = remainingChoices[0]
@@ -87,9 +87,10 @@ Meteor.methods({
             },
     }
     Polls.update({_id: pollId}, pollUpdates)
-    // Meteor.setTimeout(function(){
-    //   Meteor.call("poll.winnerPrize", pollId)
-    // }, (winner.duration_ms + 10000))
+
+    Meteor.setTimeout(function(){
+      Meteor.call("poll.winnerPrize", pollId)
+    }, (winner.duration_ms + 10000))
   },
 
   "poll.reloadSongs": function(pollId){
@@ -151,6 +152,8 @@ Meteor.methods({
   },
 
   "poll.addTrackToVoterChoices": function(poll, track){
+    playlist = Playlists.findOne({_id: poll.playlistId })
+    user = LoggedUsers.findOne({_id: playlist.userId})
     decoratedTrack = Meteor.call("decorateTrack", user, track)
     decoratedTrack.added_at = new Date
     Polls.update({_id: poll._id}, {$set: {['votersChoices.track_'+decoratedTrack.spotifyId]: decoratedTrack}})

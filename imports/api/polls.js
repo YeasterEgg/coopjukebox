@@ -10,4 +10,3 @@ if (Meteor.isServer) {
     return Polls.find({playlistId: playlistId, active: true})
   })
 }
-
