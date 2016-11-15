@@ -9,17 +9,12 @@ Meteor.methods({
     if(Polls.findOne({playlistId: playlist._id, active: true})){
       return false
     }else{
-      pollSize = 50
-      availableChoices = cf.randomProperties(playlist.songlist, pollSize)
       Polls.insert({
         playlistId: playlist._id,
         active: true,
-        songlist: playlist.songlist,
         availableChoices: playlist.songlist,
         votersChoices: {},
         startedAt: new Date,
-        reloadTimeout: 60000,
-        reloadExchangeRate: 0.2,
         winners: [],
       }, function(err,res){
         if(res){
@@ -31,9 +26,8 @@ Meteor.methods({
 
   "poll.startLifecycle": function(pollId){
 
-    // The poll starts! It calls 2 different branches of cycles:
-    // - The winning song lifecycle, which every n minutes selects the most voted song to add to the playlist
-    // - The songlist reload lyfecicle, which every n minutes changes the songlist with a specific algorithm
+    // The poll starts! It starts the winning song lifecycle, which every n minutes selects the most
+    // voted song to add to the playlist, then removes it from the songlist.
 
     poll = Polls.findOne({_id: pollId})
     pollReloadTimeout = poll.reloadTimeout
@@ -42,17 +36,12 @@ Meteor.methods({
     Meteor.setTimeout(function(){
       Meteor.call("poll.winnerPrize", pollId)
     }, firstSongTimeout)
-
-    // Meteor.setTimeout(function(){
-    //   Meteor.call("poll.reloadSongs", pollId)
-    // }, pollReloadTimeout)
   },
 
   "poll.winnerPrize": function(pollId){
 
     // Finds the Poll and orders for votes
-    // Then the winner is added to the playlist and removed from the current songlist, throwing in one song
-    // from the voters' choiches
+    // Then the winner is added to the playlist and removed from the current songlist.
 
     poll   = Polls.findOne({_id: pollId})
     if(poll.active === false){
@@ -66,83 +55,17 @@ Meteor.methods({
     winnerUri = "spotify:track:" + winner.spotifyId
     Meteor.call('playlist.addTrackToPlaylist', poll.playlistId, winnerUri)
 
-    delete poll.songlist["track_" + winner.spotifyId]
     delete poll.availableChoices["track_" + winner.spotifyId]
-    delete poll.votersChoices["track_" + winner.spotifyId]
-
-    firstVoterChoice = _.sortBy(poll.votersChoices, function(track){ return track.added_at })[0]
-    if(firstVoterChoice){
-      poll.availableChoices["track_" + firstVoterChoice.spotifyId] = firstVoterChoice
-    }else{
-      remainingChoices = _.filter(poll.songlist, function(track){ poll.availableChoices["track_" + track.spotifyId] === undefined } )
-      poll.availableChoices["track_" + remainingChoices[0].spotifyId] = remainingChoices[0]
-    }
 
     pollUpdates = {
-      $push: {winners: winner},
-      $set: {
-            availableChoices: poll.availableChoices,
-            songlist: poll.songlist,
-            votersChoices: poll.votersChoices,
-            },
+      $push: { winners: winner},
+      $set:  { availableChoices: poll.availableChoices }
     }
     Polls.update({_id: pollId}, pollUpdates)
 
     Meteor.setTimeout(function(){
       Meteor.call("poll.winnerPrize", pollId)
     }, (winner.duration_ms + 10000))
-  },
-
-  "poll.reloadSongs": function(pollId){
-
-    poll = Polls.findOne({_id: pollId})
-    if(poll.active === false){
-      console.log('The poll has been stopped, silly you!')
-      return false
-    }
-    orderedTracks = _.sortBy(Object.values(poll.availableChoices), function(track){
-      return track.votes
-    })
-
-    // Found the Poll and ordered for votes
-
-    nToBeChanged              = Math.floor(poll.availableChoices.length * pollExchangeRate)
-
-    // pollExchangeRate is the part of the total pool which will be removed from the voting pool
-
-    nTracksFromVoters         = Math.ceil(toBeChanged / 2)
-    tracksFromVoters          = cf.randomProperties(poll.votersChoices, nTracksFromVoters)
-
-    // Half of the new songs will be selected from the voters' choiches
-
-    nTracksFromSonglist       = nToBeChanged - Object.keys(tracksFromVoters).length
-    tracksFromSonglist        = cf.randomProperties(poll.songlist,nTracksFromSonglist)
-
-    // The other half (or more, if there are not enough voters' choiches) will be selected from the songlist
-
-    remainingAvailableChoices = orderedTracks.slice((nToBeChanged-1),-1)
-    newAvailableChoices       = Object.assign(tracksFromVoters, tracksFromSonglist)
-
-
-    pollUpdates = {
-      $push: {winners: winner},
-      $set: {
-            availableChoices: availableChoices,
-            songlist: poll.songlist,
-            votersChoices: poll.votersChoices,
-            startedAt: new Date,
-            closesAt: new Date(new Date - - winner.duration_ms),
-            },
-      $inc: {pollsLeft: -1}
-    }
-
-    Polls.update({_id: pollId}, pollUpdates)
-
-    newPoll = Polls.findOne({_id: pollId})
-
-    Meteor.setTimeout(function(){
-      Meteor.call("poll.endSinglePollTurn", newPoll._id, playlist)
-    }, winner.duration_ms)
   },
 
   "poll.addVoteToTrack": function(poll, track){
@@ -154,9 +77,14 @@ Meteor.methods({
   "poll.addTrackToVoterChoices": function(poll, track){
     playlist = Playlists.findOne({_id: poll.playlistId })
     user = LoggedUsers.findOne({_id: playlist.userId})
-    decoratedTrack = Meteor.call("decorateTrack", user, track)
+    decoratedTrack = Meteor.call("track.decorateTrack", user, track)
     decoratedTrack.added_at = new Date
-    Polls.update({_id: poll._id}, {$set: {['votersChoices.track_'+decoratedTrack.spotifyId]: decoratedTrack}})
+    Polls.update({_id: poll._id},
+                 {$set: {
+                          ['votersChoices.track_'+decoratedTrack.spotifyId]: decoratedTrack,
+                          ['availableChoices.track_'+decoratedTrack.spotifyId]: decoratedTrack
+                        }
+                  })
     return true
   },
 

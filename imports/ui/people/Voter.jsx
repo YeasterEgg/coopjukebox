@@ -16,17 +16,6 @@ export default class Voter extends Component {
     }
   }
 
-  // componentWillReceiveProps(nextProps){
-  //   if(!localStorage.pollsVoted){
-  //     this.setState({voted: false})
-  //   }
-  //   pollsVoted = JSON.parse(localStorage.pollsVoted)
-  //   pollUniqId = nextProps.poll._id + "_" + nextProps.poll.pollsLeft
-  //   if(!pollsVoted[pollUniqId]){
-  //     this.setState({voted: false})
-  //   }
-  // }
-
   componentWillMount(){
     if(!localStorage.pollsVoted) return false
     pollsVoted = JSON.parse(localStorage.pollsVoted)
@@ -101,12 +90,7 @@ export default class Voter extends Component {
 
   addTrackToVoterChoices(track){
     this.setPollAsVoted(track)
-    Meteor.call("poll.addTrackToVoterChoices", this.props.poll, track, function(error, result){
-      if(!error){
-      }else{
-        // this.setState({voted: false})
-      }
-    }.bind(this))
+    Meteor.call("poll.addTrackToVoterChoices", this.props.poll, track)
   }
 
   setPollAsVoted(track){

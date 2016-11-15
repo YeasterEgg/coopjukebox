@@ -1,15 +1,18 @@
 import { Meteor } from 'meteor/meteor'
 import { Polls } from '../imports/api/polls.js'
-const crypto = require('crypto')
-ma = require('../imports/lib/musicAnalyzer.js')
 
-Meteor.startup(() => {
-  Polls.update({active: true}, {$set: {active: false}} )
-})
+ma = require('../imports/lib/musicAnalyzer.js')
+cf = require('../imports/lib/commonFunctions.js')
+config = require('../imports/lib/config.js')
+querystring = require('querystring')
 
 getApiWrapper = Meteor.wrapAsync(getApi)
 postApiWrapper = Meteor.wrapAsync(postApi)
 updateTokenWrapper = Meteor.wrapAsync(updateToken)
+
+Meteor.startup(() => {
+  Polls.update({active: true}, {$set: {active: false}} )
+})
 
 Meteor.methods({
 
@@ -17,7 +20,7 @@ Meteor.methods({
     return getAuth(config.clientId, config.redirectUrl, config.scope, sessionId, config.authUrl)
   },
 
-  "decorateTrack": function(user, track){
+  "track.decorateTrack": function(user, track){
     updateTokenWrapper(user)
     url = config.trackFeaturesUrl + track.spotifyId
     headers = {'Authorization': 'Bearer ' + user.token.accessToken }
@@ -27,7 +30,7 @@ Meteor.methods({
     return track
   },
 
-  "decorateTracks": function(user, rawTracks){
+  "track.decorateTracks": function(user, rawTracks){
     updateTokenWrapper(user)
     ids = rawTracks.map(function(item){
       return item.track.id
@@ -45,6 +48,26 @@ Meteor.methods({
       songlist["songlist.track_" + newTrack.spotifyId] = newTrack
     })
     return songlist
+  },
+
+  "track.searchTracks": function(query, limit = 20){
+    params = {
+      q: query,
+      type: "track",
+      limit: limit
+    }
+    url = config.searchUrl + querystring.stringify(params)
+    result = getApiWrapper(url, {})
+    searchResult = result.body
+    if(searchResult.tracks && searchResult.tracks.items){
+      tracks = _.map(searchResult.tracks.items, function(track){
+        return cf.getTrackValues(track)
+      })
+    }else{
+      tracks = false
+    }
+    return tracks
   }
+
 
 })

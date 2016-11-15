@@ -43,7 +43,7 @@ Meteor.methods({
     result = getApiWrapper(url, headers)
     if(!result.body.error){
       rawTracks = result.body.items
-      songlist = Meteor.call("decorateTracks", user, rawTracks)
+      songlist = Meteor.call("track.decorateTracks", user, rawTracks)
       Playlists.update({_id: playlist._id}, {$set: songlist})
       return songlist
     }
@@ -51,7 +51,7 @@ Meteor.methods({
 
   "playlist.addTrackToSonglist": function(playlist, track){
     user = LoggedUsers.findOne({_id: playlist.userId})
-    decoratedTrack = Meteor.call("decorateTrack", user, track)
+    decoratedTrack = Meteor.call("track.decorateTrack", user, track)
     Playlists.update({_id: playlist._id}, {$set: {['songlist.track_'+decoratedTrack.spotifyId]: decoratedTrack}})
     return true
   },

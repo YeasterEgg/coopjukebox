@@ -4,7 +4,6 @@ import Track from '../common/Track.jsx'
 
 export default class TrackList extends Component {
   render(){
-    length = tracks.length
     return(
       <div className="tracklist--tracklist_container">
         {this.props.tracks.map(function(track){
