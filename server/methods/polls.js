@@ -68,26 +68,6 @@ Meteor.methods({
     }, (winner.duration_ms + 10000))
   },
 
-  "poll.addVoteToTrack": function(poll, track){
-    increment = {['availableChoices.track_'+track.spotifyId+'.votes']: 1}
-    Polls.update({_id: poll._id}, {$inc: increment})
-    return true
-  },
-
-  "poll.addTrackToVoterChoices": function(poll, track){
-    playlist = Playlists.findOne({_id: poll.playlistId })
-    user = LoggedUsers.findOne({_id: playlist.userId})
-    decoratedTrack = Meteor.call("track.decorateTrack", user, track)
-    decoratedTrack.added_at = new Date
-    Polls.update({_id: poll._id},
-                 {$set: {
-                          ['votersChoices.track_'+decoratedTrack.spotifyId]: decoratedTrack,
-                          ['availableChoices.track_'+decoratedTrack.spotifyId]: decoratedTrack
-                        }
-                  })
-    return true
-  },
-
   "poll.stopPoll": function(pollId){
     Polls.update({_id: pollId}, {$set: {active: false}})
   },
