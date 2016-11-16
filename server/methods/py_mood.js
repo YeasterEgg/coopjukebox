@@ -38,14 +38,16 @@ Meteor.methods({
       body: JSON.stringify(form),
       json: true
     };
-    request.post(options, function(result, error){
-      if(error){
-        console.log("BAD!")
-        console.log(error.body)
-      }else{
-        console.log("GOOD!")
-        console.log(result.body)
-        console.log(error.body)
+    request.post(options, function(error, result){
+      if(!error){
+        response = result.body
+        if(response["error"]){
+          console.log("BAD")
+          console.log(response)
+        }else{
+          console.log("GOOD")
+          console.log(response)
+        }
       }
     })
   },
