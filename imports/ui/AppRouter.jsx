@@ -12,7 +12,7 @@ export default class AppRouter extends Component {
       <Router history={browserHistory}>
         <Route path="/" component={MasterController} />
         <Route path="/callback" component={Callback} />
-        <Route path="/404" component={PageNotFound} />
+        <Route path="/*" component={PageNotFound} />
       </Router>
     )
   }
