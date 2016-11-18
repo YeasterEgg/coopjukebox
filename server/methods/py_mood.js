@@ -5,33 +5,27 @@ config_py_mood = require('../../imports/lib/config_py_mood.js')
 
 Meteor.methods({
 
-  "pyMood.sendPlaylistFromUri": function(playlistUri = "spotify:user:11121168332:playlist:0MimWdVjSFWw6qFGYmqKEs", pyMoodHost){
-    user = LoggedUsers.findOne({"_id": "11121168332"})
-
-    updateTokenWrapper(user)
-
-    uri = playlistUri.split(":")
-    if(uri.length != 5) return false
-    importedUserId = uri[2]
-    importedPlaylistSpotifyId = uri[4]
-
-    url = config.playlistTracksUrl(importedUserId, importedPlaylistSpotifyId)
-    headers = {'Authorization': 'Bearer ' + user.token.accessToken }
-    result = getApiWrapper(url, headers)
-    if(!result.body.error){
-      rawTracks = result.body.items
-      songlist = Meteor.call("track.decorateTracks", user, rawTracks)
-      result = postApiWrapper(pyMoodHost, )
-    }
-  },
-
-  "pyMood.sendPlaylist": function(pyMoodHost = "http://localhost:4000/v0.1/playlist", playlist = Playlists.findOne({}), mood = "happy"){
+  "pyMood.sendPlaylist": function(pyMoodHost = "http://localhost:4000/v0.1/playlist", playlist_id = null, mood = null, training = null){
     ts = String(Date.now())
     token = Meteor.call('pyMood.validToken', ts)
-    playlist["mood"] = mood
-    form = {'playlist': playlist, 'token':
-      {'token': token, 'ts': ts}
+    if(playlist_id){
+      playlist = Playlists.findOne({"_id": playlist_id})
+    }else{
+      playlist = Playlists.findOne({})
     }
+    if(training){
+      playlist["training"] = training
+    }else{
+      playlist["training"] = (playlist["creator_id"] == "11121168332" && playlist["name"] == "training")
+    }
+    if(mood){
+      playlist["mood"] = mood
+    }else{
+      playlist["mood"] = "happy"
+    }
+    form = {'playlist': playlist,
+            'token': {'token': token, 'ts': ts}
+          }
     headers = {"content-type": "application/json"}
     options = {
       url: pyMoodHost,
@@ -44,10 +38,8 @@ Meteor.methods({
         response = result.body
         if(response["error"]){
           console.log("BAD")
-          console.log(response)
         }else{
           console.log("GOOD")
-          console.log(response)
         }
       }
     })
