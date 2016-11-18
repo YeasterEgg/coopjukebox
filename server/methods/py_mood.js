@@ -25,10 +25,10 @@ Meteor.methods({
     }
   },
 
-  "pyMood.sendPlaylist": function(pyMoodHost = "http://localhost:4000/v0.1/playlist", playlist = Playlists.findOne({})){
+  "pyMood.sendPlaylist": function(pyMoodHost = "http://localhost:4000/v0.1/playlist", playlist = Playlists.findOne({}), mood = "Happy"){
     ts = String(Date.now())
     token = Meteor.call('pyMood.validToken', ts)
-    playlist["mood"] = "Happy"
+    playlist["mood"] = mood
     form = {'playlist': playlist, 'token':
       {'token': token, 'ts': ts}
     }
