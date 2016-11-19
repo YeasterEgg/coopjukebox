@@ -16,12 +16,14 @@ Meteor.methods({
     if(training){
       playlist["training"] = training
     }else{
-      playlist["training"] = (playlist["creator_id"] == "11121168332" && playlist["name"] == "training")
+      playlist["training"] = (playlist["creator_id"] == "11121168332" && config_py_mood.moods.includes(playlist["name"]) )
     }
     if(mood){
       playlist["mood"] = mood
+    }else if(config_py_mood.moods.includes(playlist["name"])){
+      playlist["mood"] = playlist["name"]
     }else{
-      playlist["mood"] = "happy"
+      playlist["mood"] = "none"
     }
     form = {'playlist': playlist,
             'token': {'token': token, 'ts': ts}
