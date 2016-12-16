@@ -28,6 +28,7 @@ Meteor.methods({
       name: playlist.name,
       chosenName: urlParam,
       userId: user._id,
+      creatorId: user._id,
       songlist: {},
       startedAt: new Date,
     }, function(){
@@ -86,7 +87,9 @@ Meteor.methods({
       return false
     }else{
       LoggedUsers.update({_id: user._id}, {$set: {"playlists": result.body.items}})
+      // Playlists parsing
       result.body.items.map(function(playlist){
+        // Creates all non-existant playlists
         if(Playlists.findOne({_id: playlist.id})){
           // Playlist already exists
         }else if(playlist.owner.id !== user._id){

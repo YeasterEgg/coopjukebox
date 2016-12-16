@@ -7,8 +7,6 @@ const digested = function(ts){
   return crypto.createHmac('sha256', token).update(ts).digest('hex').toUpperCase()
 }
 
-
-
 module.exports = {
   digested: digested,
   moods: moods

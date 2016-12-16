@@ -5,7 +5,7 @@ config_py_mood = require('../../imports/lib/config_py_mood.js')
 
 Meteor.methods({
 
-  "pyMood.sendPlaylist": function(pyMoodHost = "http://localhost:4000/v0.1/playlist", playlist_id = null, mood = null, training = null){
+  "pyMood.sendPlaylist": function(pyMoodHost = "http://localhost:4000/v0.2/playlist", playlist_id = null, mood = null, training = null){
     ts = String(Date.now())
     token = Meteor.call('pyMood.validToken', ts)
     if(playlist_id){
@@ -16,7 +16,7 @@ Meteor.methods({
     if(training){
       playlist["training"] = training
     }else{
-      playlist["training"] = (playlist["creator_id"] == "11121168332" && config_py_mood.moods.includes(playlist["name"]) )
+      playlist["training"] = (playlist["creatorId"] == "11121168332" && config_py_mood.moods.includes(playlist["name"]) )
     }
     if(mood){
       playlist["mood"] = mood
@@ -42,6 +42,7 @@ Meteor.methods({
           console.log("BAD")
         }else{
           console.log("GOOD")
+          console.log(response)
         }
       }
     })
