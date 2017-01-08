@@ -8,7 +8,7 @@ export default class Track extends Component {
   render(){
     length = cf.secondsToMinutes(~~(this.props.track.duration_ms / 1000))
     return(
-      <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionEnterTimeout={2000} transitionLeaveTimeout={500} component="a" className={"tracklist--track_cell tracklist--track_cell_"+length} href="#" onClick={function(event){event.preventDefault();this.props.clickOnTrackAction(this.props.track)}.bind(this)}>
+      <ReactCSSTransitionGroup transitionName="fadeInFadeOut" transitionEnterTimeout={2000} transitionLeaveTimeout={500} component="a" className={"tracklist--track_cell tracklist--track_cell_"+ this.props.track.mood} href="#" onClick={function(event){event.preventDefault();this.props.clickOnTrackAction(this.props.track)}.bind(this)}>
         <div className="tracklist--track_title">{this.props.track.name}</div>
         <div className="tracklist--track_info">
           {this.renderVotes.bind(this)()}

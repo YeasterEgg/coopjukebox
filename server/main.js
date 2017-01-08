@@ -9,6 +9,7 @@ querystring = require('querystring')
 getApiWrapper = Meteor.wrapAsync(getApi)
 postApiWrapper = Meteor.wrapAsync(postApi)
 updateTokenWrapper = Meteor.wrapAsync(updateToken)
+postApiPymoodWrapper = Meteor.wrapAsync(postApiPymood)
 
 Meteor.startup(() => {
   Polls.update({active: true}, {$set: {active: false}} )

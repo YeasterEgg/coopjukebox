@@ -18,14 +18,29 @@ Meteor.methods({
         winners: [],
       }, function(err,res){
         if(res){
-          Meteor.call('poll.startLifecycle', res)
+          Meteor.call('pyMood.sendPlaylist', res, function(error, result){
+            if(Math.floor(result.statusCode / 100) == 2){
+              Meteor.call('poll.setMood', res, result.body.clusters)
+            }else{
+              console.log("Oh NOES!")
+            }
+          })
         }
       })
     }
   },
 
-  "poll.startLifecycle": function(pollId){
+  "poll.setMood": function(pollId, playlistHash){
+    poll = Polls.findOne({_id: pollId})
+    Object.keys(playlistHash).map(function(key){
+      poll.availableChoices["track_"+key].mood = playlistHash[key]
+    })
+    Polls.update({_id: poll._id}, {$set:{ availableChoices: poll.availableChoices} }, function(){
+      Meteor.call('poll.startLifecycle', pollId)
+    })
+  },
 
+  "poll.startLifecycle": function(pollId){
     // The poll starts! It starts the winning song lifecycle, which every n minutes selects the most
     // voted song to add to the playlist, then removes it from the songlist.
 

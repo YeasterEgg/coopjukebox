@@ -16,3 +16,13 @@ postApi = function(url, headers, form, callback){
   };
   request.post(options, callback)
 }
+
+postApiPymood = function(url, headers, form, callback){
+  options = {
+    url: url,
+    headers: headers,
+    body: form,
+    json: true
+  };
+  request.post(options, callback)
+}
