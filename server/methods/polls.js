@@ -16,13 +16,12 @@ Meteor.methods({
         votersChoices: {},
         startedAt: new Date,
         winners: [],
+        turnNo: 0,
       }, function(err,res){
         if(res){
           Meteor.call('pyMood.sendPlaylist', res, function(error, result){
             if(Math.floor(result.statusCode / 100) == 2){
               Meteor.call('poll.setMood', res, result.body.clusters)
-            }else{
-              console.log("Oh NOES!")
             }
           })
         }
@@ -74,7 +73,7 @@ Meteor.methods({
 
     pollUpdates = {
       $push: { winners: winner},
-      $set:  { availableChoices: poll.availableChoices }
+      $set:  { availableChoices: poll.availableChoices, turnNo: (poll.turnNo + 1) }
     }
     Polls.update({_id: pollId}, pollUpdates)
 

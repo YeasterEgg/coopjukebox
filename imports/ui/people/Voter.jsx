@@ -16,10 +16,25 @@ export default class Voter extends Component {
     }
   }
 
+  componentWillReceiveProps(nextProps){
+    if(!localStorage.pollsVoted) return false
+    pollsVoted = JSON.parse(localStorage.pollsVoted)
+    pollUniqId = nextProps.poll._id + "_" + nextProps.poll.turnNo
+    if(pollsVoted[pollUniqId]){
+      console.log('no!')
+      this.setState({voted: pollsVoted[pollUniqId]})
+      return true
+    }else{
+      console.log('ciao')
+      this.setState({voted: false})
+      return false
+    }
+  }
+
   componentWillMount(){
     if(!localStorage.pollsVoted) return false
     pollsVoted = JSON.parse(localStorage.pollsVoted)
-    pollUniqId = this.props.poll._id + "_" + this.props.poll.pollsLeft
+    pollUniqId = this.props.poll._id + "_" + this.props.poll.turnNo
     if(pollsVoted[pollUniqId]){
       this.setState({voted: pollsVoted[pollUniqId]})
       return true
@@ -94,7 +109,7 @@ export default class Voter extends Component {
   }
 
   setPollAsVoted(track){
-    pollUniqId = this.props.poll._id + "_" + this.props.poll.pollsLeft
+    pollUniqId = this.props.poll._id + "_" + this.props.poll.turnNo
     if(localStorage.pollsVoted){
       pollsVoted = JSON.parse(localStorage.pollsVoted)
     }else{
