@@ -1,0 +1,21 @@
+{
+  "info":
+    [
+      {
+        "title": "First Steps",
+        "content": "First thing, you need to authenticate with your spotify account. That will give the app the rights to create and update a Spotify Playlist.&nbsp;When that is done, you can create a Spotify Playlist (or access one you have already created before)."
+      },
+      {
+        "title": "Fill a Songlist",
+        "content": "Each Spotify Playlist will be paired to a Songlist you need to fill in 3 ways:"
+      },
+      {
+        "title": "The Poll",
+        "content": "Any user, even if it&#39;s not registered to Spotify, will be able to influence your Spotify Playlist from the link you will see on your page, with structure &quot;https://coop-jukebox.herokuapp.com/NAME_OF_PLAYLIST&quot;. He will be able either vote a track or add a track to the pool list, once for every turn."
+      },
+      {
+        "title": "Poll End",
+        "content": "At the end of the poll (whose duration is 5' for the first, and then as long as the previous winner) the track with more votes will be added to your Spotify Playlist.&nbsp;If there are any left, another poll will start, including half tracks from your songlist and half from user chosen tracks."
+      }
+    ]
+}

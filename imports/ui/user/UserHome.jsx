@@ -5,10 +5,10 @@ import { createContainer } from 'meteor/react-meteor-data'
 import { LoggedUsers } from '../../api/loggedUsers.js'
 
 import Waiter from '../common/Waiter.jsx'
-import AuthButton from './AuthButton.jsx'
-import PlaylistsIndex from './PlaylistsIndex.jsx'
+import AuthButton from './atoms/AuthButton.jsx'
+import PlaylistsIndex from './parts/PlaylistsIndex.jsx'
 
-export default class MasterController extends Component {
+export default class UserHome extends Component {
 
   render(){
     if(!this.props.subscriptionsReady){
@@ -21,7 +21,7 @@ export default class MasterController extends Component {
   }
 }
 
-MasterController.propTypes = {
+UserHome.propTypes = {
   user: PropTypes.object,
 }
 
@@ -34,4 +34,4 @@ export default createContainer(() => {
     user: LoggedUsers.findOne(),
     subscriptionsReady: userSubscription.ready()
   }
-}, MasterController)
+}, UserHome)
