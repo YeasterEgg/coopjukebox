@@ -20,6 +20,7 @@ Meteor.methods({
       }, function(err,res){
         if(res){
           Meteor.call('pyMood.sendPlaylist', res, function(error, result){
+            console.log(result.body)
             if(Math.floor(result.statusCode / 100) == 2){
               Meteor.call('poll.setMood', res, result.body.clusters)
             }

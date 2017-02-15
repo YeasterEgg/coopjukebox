@@ -6,7 +6,7 @@ config_py_mood = require('../../imports/lib/config_py_mood.js')
 
 Meteor.methods({
 
-  "pyMood.sendPlaylist": function(pollId, pyMoodHost = "http://pymood.grokked.it/playlist"){
+  "pyMood.sendPlaylist": function(pollId, pyMoodHost = "https://pymood.grokked.it/playlist"){
     poll = Polls.findOne({_id: pollId})
     playlist = poll.availableChoices
     ts = String(Date.now())
