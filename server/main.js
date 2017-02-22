@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import { Polls } from '../imports/api/polls.js'
+import { HTTP } from 'meteor/http'
 
 ma = require('../imports/lib/musicAnalyzer.js')
 cf = require('../imports/lib/commonFunctions.js')
@@ -72,3 +73,22 @@ Meteor.methods({
 
 
 })
+
+Meteor.onConnection(function(connection){
+  id = Math.random().toString(36).replace(/[^a-z]+/g, '')
+
+  HTTP.call("GET", "https://grokked.it/visited_website", {params: {site: "CoopJukebox", id: id}}, function(error, data){
+    console.log(data)
+    console.log(error)
+  });
+
+  connection.onClose(function(){
+    HTTP.call("GET", "https://grokked.it/goodbye_website", {params: {site: "CoopJukebox", id: id}}, function(error, data){
+      console.log(data)
+      console.log(error)
+    });
+  })
+
+
+})
+
