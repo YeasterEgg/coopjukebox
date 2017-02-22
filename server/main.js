@@ -75,15 +75,13 @@ Meteor.methods({
 })
 
 Meteor.onConnection(function(connection){
-  id = Math.random().toString(36).replace(/[^a-z]+/g, '')
-
-  HTTP.call("GET", "https://grokked.it/visited_website", {params: {site: "CoopJukebox", id: id}}, function(error, data){
+  HTTP.call("GET", "https://grokked.it/visited_website", {params: {site: "CoopJukebox", id: connection.id}}, function(error, data){
     console.log(data)
     console.log(error)
   });
 
   connection.onClose(function(){
-    HTTP.call("GET", "https://grokked.it/goodbye_website", {params: {site: "CoopJukebox", id: id}}, function(error, data){
+    HTTP.call("GET", "https://grokked.it/goodbye_website", {params: {site: "CoopJukebox", id: connection.id}}, function(error, data){
       console.log(data)
       console.log(error)
     });
